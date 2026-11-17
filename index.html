@@ -23,7 +23,12 @@
       <h1>Historical Atlas of India</h1>
       <p class="hi" lang="hi">भारत का ऐतिहासिक एटलस</p>
     </div>
-    <a class="btn" href="https://monuments-of-india-nu.vercel.app">All monuments in 3D</a>
+    <nav class="tl-nav" aria-label="Atlas">
+      <button class="btn" id="nav-chart" type="button" aria-pressed="false" aria-controls="tl-chart">Dynasties</button>
+      <a class="btn" href="#styles">Styles</a>
+      <a class="btn" href="#glossary">Glossary</a>
+      <a class="btn btn-3d" href="https://monuments-of-india-nu.vercel.app">Monuments in 3D</a>
+    </nav>
   </header>
 
   <main class="tl-stage">
@@ -34,17 +39,31 @@
       <p class="tl-standing" id="tl-standing"></p>
     </div>
     <ul class="tl-key" id="tl-key" aria-label="Map key" hidden></ul>
-    <ul class="tl-legend">
-      <li><span class="dot t-sacred"></span>Temples &amp; shrines</li>
-      <li><span class="dot t-fort"></span>Forts &amp; palaces</li>
-      <li><span class="dot t-memorial"></span>Tombs &amp; memorials</li>
-      <li><span class="dot t-civic"></span>Civic &amp; engineering</li>
-      <li><span class="swatch-today"></span>India’s boundary today</li>
-    </ul>
+    <details class="tl-legend" id="tl-layers" open>
+      <summary>Map layers</summary>
+      <label><input type="checkbox" data-layer="borders" checked> Borders and names</label>
+      <label><input type="checkbox" data-layer="monuments" checked> Monuments</label>
+      <ul class="types">
+        <li><span class="dot t-sacred"></span>Temples &amp; shrines</li>
+        <li><span class="dot t-fort"></span>Forts &amp; palaces</li>
+        <li><span class="dot t-memorial"></span>Tombs &amp; memorials</li>
+        <li><span class="dot t-civic"></span>Civic &amp; engineering</li>
+      </ul>
+      <p class="filter" id="tl-filter" hidden></p>
+      <label><input type="checkbox" data-layer="capitals"> <span class="sym-capital"></span>Capitals</label>
+      <label><input type="checkbox" data-layer="battles" checked> <span class="sym-battle"></span>Battles</label>
+      <p class="today-note"><span class="swatch-today"></span>India’s boundary today</p>
+    </details>
     <div class="maptip" id="tl-tip" role="tooltip" hidden></div>
   </main>
 
+  <section class="tl-chart" id="tl-chart" aria-label="Dynasties of the era" hidden>
+    <svg id="chart-svg" role="group" aria-label="Dynasties by region over time"></svg>
+  </section>
+
   <aside class="tl-card" id="tl-card" aria-live="polite">
+    <div id="c-detail" hidden></div>
+    <div id="c-era">
     <p class="eyebrow" id="c-count"></p>
     <h2 id="c-name"></h2>
     <p class="span" id="c-span"></p>
@@ -54,12 +73,21 @@
     <p id="c-change"></p>
     <h3>Key dates</h3>
     <ul class="dates" id="c-dates"></ul>
+    <div id="c-ruling-wrap">
+      <h3 id="c-ruling-title"></h3>
+      <ul class="ruling" id="c-ruling"></ul>
+    </div>
     <p class="mapnote" id="c-map"></p>
     <h3>Monument of the era</h3>
     <div id="c-lead"></div>
     <div id="c-built-wrap">
       <h3 id="c-built-title"></h3>
       <ul class="built" id="c-built"></ul>
+    </div>
+    <div id="c-battles-wrap">
+      <h3>Battles of the era</h3>
+      <ul class="built" id="c-battles"></ul>
+    </div>
     </div>
   </aside>
 

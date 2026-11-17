@@ -17,8 +17,8 @@
   height: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 380px;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  grid-template-areas: "head head" "stage card" "bar bar";
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "head head" "stage card" "chart card" "bar bar";
 }
 .tl-head {
   grid-area: head;
@@ -33,6 +33,7 @@
 .tl-head h1 { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.1; }
 .tl-head .hi { margin: 0; color: var(--accent); font-size: 15px; }
 .tl-head .btn { text-decoration: none; flex: none; }
+.tl-nav { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 
 /* ---------- map ---------- */
 .tl-stage { grid-area: stage; position: relative; min-height: 0; background: var(--sea); overflow: hidden; }
@@ -123,7 +124,6 @@
   bottom: 14px;
   margin: 0;
   padding: 8px 12px;
-  list-style: none;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--panel);
@@ -131,11 +131,49 @@
   -webkit-backdrop-filter: blur(10px);
   font-size: 12px;
   color: var(--muted);
-  display: grid;
-  gap: 3px;
+  max-width: 230px;
 }
+.tl-legend[open] { display: grid; gap: 3px; }
+.tl-legend summary { cursor: pointer; font-weight: 600; color: var(--fg); letter-spacing: 0.04em; }
+.tl-legend[open] summary { margin-bottom: 2px; }
+.tl-legend label { display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--fg); }
+.tl-legend input { margin: 0; accent-color: var(--accent); }
+.tl-legend .types { margin: 0 0 2px 20px; padding: 0; list-style: none; display: grid; gap: 1px; }
 .tl-legend li { display: flex; align-items: center; gap: 8px; }
 .tl-legend .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.tl-legend .filter { margin: 0 0 2px 20px; color: var(--fg); }
+.tl-legend .filter a { color: var(--accent); font-weight: 600; }
+.tl-legend .today-note { margin: 2px 0 0; display: flex; align-items: center; gap: 8px; }
+.sym-capital { width: 10px; height: 10px; background: var(--fg); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); flex: none; }
+.sym-battle { width: 11px; height: 11px; border-radius: 50%; background: var(--fg); flex: none; position: relative; }
+.sym-battle::after { content: "×"; position: absolute; inset: 0; color: var(--bg); font: 700 10px/11px var(--font-body); text-align: center; }
+.linkish { border: 0; padding: 0 2px; background: none; color: var(--accent); font: inherit; cursor: pointer; }
+.linkish:hover { text-decoration: underline; }
+
+/* capitals and battles on the map */
+.tl-map .capital polygon { fill: var(--fg); stroke: var(--land); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.tl-map .capital-name { font-size: 10.5px; font-weight: 600; }
+.tl-map .capital:hover polygon, .tl-map .capital:focus-visible polygon { fill: var(--accent); }
+.tl-map .battle circle { fill: var(--fg); stroke: var(--pin-ring); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
+.tl-map .battle path { stroke: var(--bg); stroke-width: 1.6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.tl-map .battle:hover circle, .tl-map .battle:focus-visible circle, .tl-map .battle.focus circle { stroke: var(--accent); stroke-width: 3; }
+.tl-map .battle.focus circle { r: 8.5; }
+.tl-map .capital, .tl-map .battle { cursor: pointer; outline: none; }
+
+/* the dynasty chart */
+.tl-chart { grid-area: chart; border-top: 1px solid var(--line); background: var(--bg); padding: 6px 12px 4px; }
+.tl-chart svg { display: block; width: 100%; height: auto; max-height: 230px; }
+.tl-chart .axis { font: 500 11px var(--font-body); fill: var(--muted); }
+.tl-chart .lane { font: 600 11px var(--font-body); fill: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.tl-chart .tick { stroke: var(--line); }
+.tl-chart .lane-rule { stroke: var(--line); }
+.tl-chart .bar rect { fill: color-mix(in srgb, var(--p-a) 22%, transparent); stroke: var(--p-a); stroke-width: 1; }
+.tl-chart .bar.now rect { fill: color-mix(in srgb, var(--p-a) 48%, transparent); }
+.tl-chart .bar text { font: 600 11px var(--font-body); fill: var(--fg); pointer-events: none; }
+.tl-chart .bar text.small { font-size: 9px; }
+.tl-chart .bar:hover rect, .tl-chart .bar:focus-visible rect { stroke: var(--accent); stroke-width: 2; }
+.tl-chart .bar { cursor: pointer; outline: none; }
+.tl-chart .now-line { stroke: var(--accent); stroke-width: 2; }
 .swatch-today { width: 16px; height: 0; border-top: 1.5px dashed var(--outline); flex: none; margin-left: -3px; margin-right: -4px; }
 
 /* ---------- card ---------- */
@@ -162,6 +200,29 @@
 .lead-text span { color: var(--muted); font-size: 13px; }
 .lead-text .go { color: var(--accent); font-weight: 600; margin-top: 2px; }
 .lead-none { color: var(--muted); font-size: 14px; }
+.lead-style { margin-top: 6px !important; font-size: 13px; color: var(--muted); }
+.tl-card a { color: var(--accent); }
+.tl-card .lead, .tl-card .thumb { color: inherit; }
+.ruling li { display: flex; gap: 10px; align-items: baseline; padding: 2px 0; font-size: 14px; }
+.ruling .lane-tag { flex: none; width: 74px; color: var(--muted); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+.back { display: inline-block; margin-bottom: 10px; font-size: 13px; font-weight: 600; text-decoration: none; }
+.back:hover { text-decoration: underline; }
+#c-detail .eyebrow a { color: inherit; }
+#c-detail > p { margin: 6px 0 0; }
+.muted { color: var(--muted); }
+.filter-note { padding: 8px 10px; border-radius: 8px; background: var(--active); font-size: 13px; }
+.thumbs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 6px; }
+.thumb { display: block; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; text-decoration: none; }
+.thumb:hover, .thumb:focus-visible { border-color: var(--accent); outline: none; }
+.thumb img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; background: var(--sky-horizon); }
+.thumb span { display: block; padding: 4px 8px 6px; font-size: 12px; color: var(--muted); line-height: 1.3; }
+.thumb strong { display: block; color: var(--fg); font-size: 13px; font-weight: 600; }
+.terms { display: grid; gap: 8px; margin-top: 6px; }
+.term { display: grid; grid-template-columns: 96px 1fr; gap: 10px; align-items: start; }
+.term.text-only { grid-template-columns: 1fr; padding-left: 106px; }
+.term img { width: 96px; height: 72px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); background: var(--sky-horizon); }
+.term p { margin: 0; font-size: 13px; line-height: 1.4; }
+.term strong { display: block; font-size: 14px; }
 .built li { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
 .built a { color: inherit; text-decoration: none; }
 .built a:hover, .built a:focus-visible { color: var(--accent); text-decoration: underline; }
@@ -201,7 +262,12 @@
 
 @media (max-width: 900px) {
   .tl-body { overflow: auto; }
-  .tl { height: auto; min-height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto; grid-template-areas: "head" "stage" "bar" "card"; }
+  .tl { height: auto; min-height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto auto; grid-template-areas: "head" "stage" "chart" "bar" "card"; }
+  .tl-head { flex-wrap: wrap; padding: 10px 14px; }
+  .tl-nav { justify-content: flex-start; }
+  .tl-nav .btn { height: 32px; padding: 0 10px; }
+  .tl-chart { padding: 4px 6px; overflow-x: auto; }
+  .tl-chart svg { min-width: 640px; }
   .tl-stage { height: min(72vh, 110vw); }
   .tl-card { border-left: 0; border-top: 1px solid var(--line); overflow: visible; }
   .tl-bar { position: sticky; bottom: 0; background: var(--bg); flex-wrap: wrap; gap: 8px; z-index: 2; }
@@ -211,7 +277,7 @@
   .tl-now { top: 10px; right: 10px; padding: 6px 12px 8px; }
   .tl-year { font-size: 26px; }
   .tl-era { display: none; }
-  .tl-legend { display: none; }
+  .tl-legend { left: 10px; bottom: 10px; padding: 5px 8px; font-size: 11px; max-width: 60%; }
   .tl-key { top: 10px; left: 10px; font-size: 10px; padding: 5px 8px; gap: 1px; max-width: 46%; }
   .tl-head h1 { font-size: 22px; }
 }
