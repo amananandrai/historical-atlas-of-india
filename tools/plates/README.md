@@ -13,6 +13,7 @@ label by hand. A polity in several pieces gives `rings` in place of `ring`.
 | Plate | Joppen's map | Era on the atlas |
 | --- | --- | --- |
 | `1318.json` | 12, India in 1318 | Delhi Sultanate, from 1296 |
+| `1398.json` | 13, India in 1398 | Delhi Sultanate, from 1390 |
 | `1525.json` | 14, India in 1525 | Delhi Sultanate, from 1450 |
 | `1751.json` | 23, India in 1751 | Marathas and the East India Company, from 1707 |
 | `1795.json` | 27, India in 1795 | Marathas and the East India Company, from 1785 |

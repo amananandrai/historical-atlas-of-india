@@ -141,8 +141,14 @@ export const ERAS = [
       },
       {
         from: 1296, plate: '1318', title: 'India in 1318, the Sultanate at its widest',
-        certainty: 'Traced from map 12, “India in 1318”, of Joppen’s Historical Atlas of India (1914, public domain), to within about 0.2–0.3°. Joppen draws Alauddin Khalji’s empire to the far south, counting the Deccan kingdoms that paid tribute after Malik Kafur’s campaigns; only Kashmir, Kutch, part of Kathiawar, Orissa and the Pandyas of Madurai lie outside it. Shown until 1449, as the plate for 1398 is not traced yet.',
+        certainty: 'Traced from map 12, “India in 1318”, of Joppen’s Historical Atlas of India (1914, public domain), to within about 0.2–0.3°. Joppen draws Alauddin Khalji’s empire to the far south, counting the Deccan kingdoms that paid tribute after Malik Kafur’s campaigns; only Kashmir, Kutch, part of Kathiawar, Orissa and the Pandyas of Madurai lie outside it.',
         labels: [['Delhi', 28.61, 77.21, 'city'], ['Devagiri', 19.94, 75.21, 'city'], ['Warangal', 17.95, 79.61, 'city-left'], ['Dwarasamudra', 13.21, 75.99, 'city'],
+          ['Nepal', 28.4, 84.2, 'out'], ['Tibet', 31.5, 87.0, 'out'], ['Ceylon', 7.8, 80.7, 'out']],
+      },
+      {
+        from: 1390, plate: '1398', title: 'India in 1398, when Timur came',
+        certainty: 'Traced from map 13, “India in 1398”, of Joppen’s Historical Atlas of India (1914, public domain), to within about 0.2–0.3°. After Firuz Shah the Sultanate breaks up: Jaunpur, Malwa and Gujarat go their own way, Bengal and the Bahmani kingdom are already independent, and Vijayanagara holds the south. Timur sacked Delhi in December 1398; his route, which the plate draws, is not shown here.',
+        labels: [['Delhi', 28.61, 77.21, 'city'], ['Jaunpur', 25.75, 82.69, 'city'], ['Gulbarga', 17.33, 76.83, 'city'], ['Vijayanagara', 15.33, 76.46, 'city'],
           ['Nepal', 28.4, 84.2, 'out'], ['Tibet', 31.5, 87.0, 'out'], ['Ceylon', 7.8, 80.7, 'out']],
       },
       {
