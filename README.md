@@ -21,6 +21,8 @@ Every monument pin opens that monument's 3D model on the
   - the Delhi Sultanate (1236)
   - the Mughals and the Deccan sultanates (1605)
   - the Company, the Marathas and the Nizam (c. 1805)
+- **Snapshots traced from Joppen's 1914 atlas:** India in 1525 (on the eve of Panipat) and India
+  in 1751, each fitted to the plate's printed grid and traced to within about 20–30 km.
 - **The provinces and princely states** of 1939 and of 15 August 1947.
 - **The Republic in three maps**, which change as the slider moves: Republic Day 1950 (Part A, B,
   C and D states), after the States Reorganisation Act of 1956, and today's 28 states and 8 union
@@ -49,6 +51,8 @@ A static site with no build step: `index.html`, `css/` and ES modules in `js/`.
 | `js/atlas/dynasties.js`, `styles.js`, `battles.js` | Rulers and dynasties, architecture styles and the glossary, battles |
 | `js/timeline-map.js` | Generated: land, rivers, every era's borders |
 | `data/units/*.json` | Generated: the provinces and states of 1939, 1947, 1950, 1956 and today, fetched when needed |
+| `data/plates/*.json` | Generated: the snapshots traced from Joppen's plates, fetched when needed |
+| `tools/plates/` | The traced plates and the tools that fit and check them ([how](tools/plates/README.md)) |
 | `js/monuments.js` | Generated: the monuments pinned on the map |
 | `css/base.css`, `css/timeline.css` | The shared look (matching the monuments site) and the page layout |
 
