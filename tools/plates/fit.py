@@ -7,7 +7,8 @@ A plate is printed across two pages, joined at `seam` (a row of the upright scan
 fitted on its own: x = ax + r sin t, y = ay + r cos t, with t = t80 + k (lon - 80) and
 r = r25 - m (lat - 25). The fit starts from `rough` (the pixel positions of the 5-degree lines, read
 off the scan by eye), finds the printed lines near them, and refines four times, dropping points that
-fall on rivers or lettering. It prints the RMS error in pixels (1 px is about 2 km) and writes the
+fall on rivers or lettering. Where the scan has a wide margin, `rough.columns` gives two x positions
+inside the frame and clear of the meridians for the first reading of the parallels. It prints the RMS error in pixels (1 px is about 2 km) and writes the
 result into the plate's `conic`.
 """
 import json, sys, math
@@ -61,7 +62,9 @@ for page, (y0, y1) in {'top': (R['y_top'] + 10, seam - 12), 'bottom': (seam + 12
             for lat in lats:
                 yy = R['lat'][str(lat)]
                 if not (y0 < yy < y1): continue
-                for x in (150, W - 150):
+                # Two columns where the first pass reads the parallels: 150 px in from each side of
+                # the scan, or the plate's own `columns` where those miss its frame.
+                for x in R.get('columns', (150, W - 150)):
                     y, d = dark_y(x, yy, 45)
                     obs.append(('lat', lat, x, y))
         def resid(q, obs):
