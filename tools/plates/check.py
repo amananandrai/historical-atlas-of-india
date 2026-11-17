@@ -21,9 +21,10 @@ def px(lon, lat):
 d = ImageDraw.Draw(img); taken = None
 cols = [(220,0,0),(0,0,220),(0,140,0),(200,0,200),(0,150,150),(200,120,0)]
 for i, p in enumerate(C['polities']):
-    g = Polygon(p['ring']).buffer(0)
+    g = unary_union([Polygon(r).buffer(0) for r in p.get('rings', [p.get('ring')])])
     if taken is not None: g = g.difference(taken)
-    taken = g if taken is None else taken.union(Polygon(p['ring']).buffer(0))
+    whole = unary_union([Polygon(r).buffer(0) for r in p.get('rings', [p.get('ring')])])
+    taken = whole if taken is None else taken.union(whole)
     for q in getattr(g, 'geoms', [g]):
         if q.is_empty: continue
         # densify so the line follows the projection
@@ -35,7 +36,7 @@ for i, p in enumerate(C['polities']):
                 if len(seg) > 1: d.line(seg, fill=cols[i % len(cols)], width=3)
                 seg = []
             else: seg.append(c)
-    c = Polygon(p['ring']).representative_point(); q = px(c.x, c.y)
+    c = whole.representative_point(); q = px(c.x, c.y)
     if q: d.text(q, p['name'][:12], fill=(0, 0, 0))
 for lon in range(60, 101):
     pts = [px(lon, la / 10) for la in range(30, 390)]

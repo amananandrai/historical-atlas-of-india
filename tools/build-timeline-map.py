@@ -326,7 +326,7 @@ for f in sorted(glob.glob(os.path.join(plates_dir, '*.json'))):
     snap, taken, geoms, names = plate['snapshot'], None, [], []
     main = next((i for i, p in enumerate(plate['polities']) if p.get('main')), 0)
     for p in plate['polities']:
-        raw = Polygon(p['ring']).buffer(0)
+        raw = unary_union([Polygon(r).buffer(0) for r in p.get('rings', [p.get('ring')])])
         g = raw if taken is None else raw.difference(taken)
         taken = raw if taken is None else taken.union(raw)
         geoms.append(g.intersection(land))
