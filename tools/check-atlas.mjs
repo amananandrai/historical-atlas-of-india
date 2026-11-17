@@ -3,6 +3,7 @@
 import { DYNASTIES, LANES } from '../js/atlas/dynasties.js';
 import { STYLES, FAMILIES, TERMS } from '../js/atlas/styles.js';
 import { BATTLES } from '../js/atlas/battles.js';
+import { SOURCES } from '../js/atlas/sources.js';
 import { MONUMENTS } from '../js/monuments.js';
 
 const problems = [];
@@ -54,8 +55,19 @@ for (const b of BATTLES) {
   for (const d of b.dynasties || []) if (!dynasties.has(d)) bad(`battle ${b.id}: unknown dynasty ${d}`);
 }
 
+// Every "seen at" link of the sources page goes somewhere real.
+const known = { ruler: new Set(DYNASTIES.flatMap((d) => d.rulers.map((r) => r.id))), dynasty: dynasties, style: new Set(STYLES.map((x) => x.id)), battle: new Set(BATTLES.map((x) => x.id)) };
+let sourceCount = 0;
+for (const g of SOURCES) for (const it of g.items) {
+  sourceCount++;
+  for (const [h] of it.at || []) {
+    const [kind, id] = h.split('/');
+    if (id ? !(known[kind] && known[kind].has(id)) : !(/^-?\d+$/.test(kind) || ['glossary', 'styles', 'sources', 'dynasties'].includes(kind))) bad(`source ${it.id}: bad link #${h}`);
+  }
+}
+
 const rulers = DYNASTIES.reduce((n, d) => n + d.rulers.length, 0);
-console.log(`${DYNASTIES.length} dynasties, ${rulers} rulers, ${STYLES.length} styles, ${TERMS.length} terms, ${BATTLES.length} battles`);
+console.log(`${DYNASTIES.length} dynasties, ${rulers} rulers, ${STYLES.length} styles, ${TERMS.length} terms, ${BATTLES.length} battles, ${sourceCount} sources`);
 if (problems.length) {
   console.log(problems.map((p) => `  ${p}`).join('\n'));
   process.exit(1);

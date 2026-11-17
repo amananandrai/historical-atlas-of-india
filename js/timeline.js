@@ -9,6 +9,8 @@ import { TMAP, project } from './timeline-map.js';
 import { DYNASTIES, LANES, RULERS, reigningAt, capitalsAt } from './atlas/dynasties.js';
 import { FAMILIES, STYLES, TERMS, styleOf } from './atlas/styles.js';
 import { BATTLES } from './atlas/battles.js';
+import { SOURCES, NOT_YET, ISSUES } from './atlas/sources.js';
+import { buildIndex, search, parseYear } from './atlas/search.js';
 
 const TYPES = { sacred: 'Temples & shrines', fort: 'Forts & palaces', memorial: 'Tombs & memorials', civic: 'Civic & engineering' };
 const NS = 'http://www.w3.org/2000/svg';
@@ -351,7 +353,7 @@ function drawMapNote(era, map) {
     ? ` <span class="more">This era has ${maps.length} maps: ${maps.map((m) => `<a href="#${m.from ?? era.start}"${m === map ? ' aria-current="true"' : ''}>${m.from ?? era.start}</a>`).join(', ')}. Move the slider to change map.</span>`
     : '';
   $('c-map').innerHTML = map
-    ? `<strong>${esc(map.title)}.</strong> ${esc(map.certainty)}${others}`
+    ? `<strong>${esc(map.title)}.</strong> ${esc(map.certainty)}${others} <a class="src-link" href="#sources">All sources →</a>`
     : '<strong>Borders for this era are not drawn yet.</strong> The dashed line is India’s boundary today, for reference.';
 }
 
@@ -406,10 +408,26 @@ const CARDS = {
       ${kin.length ? `<h3>Related styles</h3><p>${kin.map((o) => `<a href="#style/${o.id}">${esc(o.name)}</a>`).join(', ')}</p>` : ''}`;
   },
 };
+CARDS.monument = (m) => {
+  const st = styleOf(m.id), by = builder.get(m.id);
+  return `${back()}<p class="eyebrow">Monument · ${esc(TYPES[m.type])}</p>
+    <h2>${esc(m.name)}</h2><p class="span">${esc(m.built)}</p><p class="muted">${esc(m.place)}</p>
+    <a class="lead" href="${MONUMENTS_SITE}/#${m.id}"><img src="${MONUMENTS_SITE}/assets/views/${m.id}.png" alt="" width="800" height="450" loading="lazy"><span class="lead-text"><span class="go">Open the 3D model →</span></span></a>
+    ${st ? `<h3>Style</h3><p><a href="#style/${st.id}">${esc(st.name)}</a></p>` : ''}
+    ${by ? `<h3>Built under</h3><p>${by.ruler ? `<a href="#ruler/${by.ruler.id}">${esc(by.ruler.name)}</a>, ` : ''}<a href="#dynasty/${by.dynasty.id}">${esc(by.dynasty.name)}</a></p>` : ''}`;
+};
+const srcItem = (it) => `<li class="source"><p>${esc(it.cite)}${it.url ? ` <a href="${it.url}" rel="noopener" target="_blank">Link</a>` : ''}</p>
+  ${it.terms ? `<p class="muted">${esc(it.terms)}</p>` : ''}${it.use ? `<p>${esc(it.use)}</p>` : ''}
+  ${(it.at || []).length ? `<p class="src-at">Seen at ${it.at.map(([h, t]) => `<a href="#${h}">${esc(t)}</a>`).join(', ')}</p>` : ''}</li>`;
 const PAGES = {
   styles: () => `${back()}<p class="eyebrow">Architecture</p><h2>Styles</h2>
     <p>Every monument on the map belongs to one style. A style opens with what to look for and its monuments, and the map then shows only those. See also the <a href="#glossary">glossary</a> of building parts.</p>
     ${FAMILIES.map((f) => `<h3>${esc(f.name)}</h3><ul class="built">${STYLES.filter((s) => s.family === f.id).map((s) => `<li><a href="#style/${s.id}">${esc(s.name)}</a> <span>${esc(spanText(s.start, s.end))} · ${s.monuments.length}</span></li>`).join('')}</ul>`).join('')}`,
+  sources: () => `${back()}<p class="eyebrow">About the atlas</p><h2>Sources</h2>
+    <p>Every border on the atlas is approximate, and each map’s note says how it was drawn and how sure it is. These are the works it rests on.</p>
+    ${SOURCES.map((g) => `<h3>${esc(g.group)}</h3>${g.note ? `<p class="muted">${esc(g.note)}</p>` : ''}<ul class="sources">${g.items.map(srcItem).join('')}</ul>`).join('')}
+    <h3>Not yet consulted</h3><ul class="sources">${NOT_YET.map((t) => `<li class="source"><p>${esc(t)}</p></li>`).join('')}</ul>
+    <h3>Found a mistake?</h3><p>Tell us in the atlas’s <a href="${ISSUES}" rel="noopener" target="_blank">issue tracker</a>, with the source that says otherwise.</p>`,
   glossary: () => `${back()}<p class="eyebrow">Architecture</p><h2>Glossary</h2>
     <p>The parts of a building that tell the styles apart. The pictures are from the 3D models of the <a href="${MONUMENTS_SITE}">monuments site</a>.</p>
     ${termGrid(TERMS)}`,
@@ -485,7 +503,7 @@ function show(pos, { url = true, exact, keep = false, focus = null } = {}) {
 // The last era runs to this year, which is the very end of the slider.
 const openEra = (i) => show(i === ERAS.length - 1 ? MAX : i * STEP + STEP - 1);
 
-range.addEventListener('input', () => { stop(); show(+range.value); });
+range.addEventListener('input', () => { stop(); pinFocus(null); show(+range.value); });
 bands.addEventListener('click', (ev) => {
   const b = ev.target.closest('.band');
   if (b) { stop(); openEra(+b.dataset.i); }
@@ -528,9 +546,72 @@ playBtn.addEventListener('click', () => {
   timer = setInterval(tick, reduceMotion ? 2500 : 60);
 });
 
+// A monument found by search: its pin is ringed until the year changes.
+function pinFocus(id) {
+  for (const p of pins) p.a.classList.toggle('found', p.m.id === id);
+}
+
+/* ---------- search ---------- */
+const q = $('q'), qList = $('q-list');
+const INDEX = buildIndex({ monuments: MONUMENTS, eras: ERAS, formatYear, spanText });
+let results = [], sel = -1;
+function drawResults() {
+  const text = q.value.trim();
+  const y = parseYear(text);
+  results = search(INDEX, text);
+  if (y != null) results.unshift({ kind: 'Year', label: formatYear(clampYear(y)), detail: ERAS[eraAt(posOf(y))].name, href: `#${clampYear(y)}` });
+  sel = results.length ? 0 : -1;
+  qList.innerHTML = results.length
+    ? results.map((r, i) => `<li role="option" id="q-${i}" aria-selected="${i === sel}"><a href="${r.href}" tabindex="-1"><span class="q-kind">${esc(r.kind)}</span><span class="q-label">${esc(r.label)}</span><span class="q-detail">${esc(r.detail)}</span></a></li>`).join('')
+    : (text ? '<li class="q-none">Nothing found. Try a ruler, a place, a style or a year such as 1605 or 250 BCE.</li>' : '');
+  const open = !!text;
+  qList.hidden = !open;
+  q.setAttribute('aria-expanded', String(open && results.length > 0));
+  q.setAttribute('aria-activedescendant', sel >= 0 ? `q-${sel}` : '');
+}
+function choose(i) {
+  const r = results[i];
+  if (!r) return;
+  qList.hidden = true;
+  q.setAttribute('aria-expanded', 'false');
+  q.blur();
+  if (location.hash === r.href) fromHash(); else location.hash = r.href;
+}
+q.addEventListener('input', drawResults);
+q.addEventListener('focus', () => { if (q.value.trim()) drawResults(); });
+q.addEventListener('keydown', (ev) => {
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+    if (!results.length) return;
+    ev.preventDefault();
+    sel = (sel + (ev.key === 'ArrowDown' ? 1 : -1) + results.length) % results.length;
+    [...qList.children].forEach((li, i) => li.setAttribute('aria-selected', String(i === sel)));
+    q.setAttribute('aria-activedescendant', `q-${sel}`);
+    qList.children[sel].scrollIntoView({ block: 'nearest' });
+  } else if (ev.key === 'Enter') {
+    ev.preventDefault();
+    choose(sel);
+  } else if (ev.key === 'Escape') {
+    q.value = '';
+    qList.hidden = true;
+    q.setAttribute('aria-expanded', 'false');
+  }
+});
+qList.addEventListener('mousedown', (ev) => {
+  const li = ev.target.closest('li[role="option"]');
+  if (!li) return;
+  ev.preventDefault();
+  choose(+li.id.slice(2));
+});
+q.addEventListener('blur', () => setTimeout(() => { qList.hidden = true; q.setAttribute('aria-expanded', 'false'); }, 120));
+// "/" focuses the search, as on many sites.
+addEventListener('keydown', (ev) => {
+  if (ev.key === '/' && document.activeElement !== q && !/input|textarea|select/i.test(document.activeElement.tagName)) { ev.preventDefault(); q.focus(); }
+});
+
 /* ---------- addresses ---------- */
 // #1605 opens that year; #ruler/akbar, #dynasty/chola and #battle/plassey open the item at its year;
-// #style/mughal filters the map to the style; #styles, #glossary and #dynasties open those views.
+// #style/mughal filters the map to the style; #monument/taj-mahal opens a monument at its year;
+// #term/jali opens the glossary at a term; #styles, #glossary, #sources and #dynasties open those views.
 // With no address the page opens on the Mauryas.
 const at = (year, opts) => show(posOf(clampYear(year)), { url: false, exact: clampYear(year), keep: true, ...opts });
 const dynastyYear = (d) => (current.year >= d.start && current.year <= d.end ? current.year : Math.round(d.start + Math.min(60, (d.end - d.start) / 2)));
@@ -546,6 +627,19 @@ function fromHash() {
     at(Math.min(s.end, NOW));
     openDetail(CARDS.style(s));
     return setStyleFilter(s.id);
+  }
+  if (kind === 'monument' && byId.has(id)) {
+    const m = byId.get(id);
+    at(m.year);
+    pinFocus(m.id);
+    return openDetail(CARDS.monument(m));
+  }
+  if (kind === 'term' && termById.has(id)) {
+    at(current.year);
+    openDetail(PAGES.glossary());
+    const t = document.getElementById(`term-${id}`);
+    if (t) { t.classList.add('lit'); t.scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' }); }
+    return;
   }
   if (kind === 'dynasties') { setChart(true); return at(current.year); }
   if (PAGES[kind]) { at(current.year); return openDetail(PAGES[kind]()); }

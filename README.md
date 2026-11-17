@@ -36,9 +36,14 @@ Every monument pin opens that monument's 3D model on the
   monuments on the map. A **glossary** of 26 building parts is illustrated with the monuments
   site's 3D models.
 - **Map layers** to switch on and off: borders, monuments, capitals and 24 battles.
+- **Search** across rulers, dynasties, capitals, styles, glossary terms, battles, monuments, eras and
+  years (`1605`, `250 BCE`); press `/` to start typing.
+- **A sources page** (`#sources`) listing every map, inscription and history the atlas rests on, what
+  each is used for and under what terms, with links to where it shows; each map's note links to it.
 - **Direct links** to everything: a year (`#1605`), a ruler (`#ruler/akbar`), a dynasty
-  (`#dynasty/chola`), a style (`#style/mughal`), a battle (`#battle/plassey`), and the `#styles`,
-  `#glossary` and `#dynasties` views.
+  (`#dynasty/chola`), a style (`#style/mughal`), a battle (`#battle/plassey`), a monument
+  (`#monument/taj-mahal`), a glossary term (`#term/jali`), and the `#styles`, `#glossary`, `#sources`
+  and `#dynasties` views.
 
 ## How it is built
 
@@ -49,6 +54,7 @@ A static site with no build step: `index.html`, `css/` and ES modules in `js/`.
 | `js/timeline-data.js` | The eras: their text, dates and what each map draws |
 | `js/timeline.js` | The page: map, slider, era card, pins |
 | `js/atlas/dynasties.js`, `styles.js`, `battles.js` | Rulers and dynasties, architecture styles and the glossary, battles |
+| `js/atlas/sources.js`, `search.js` | The sources page, and the search index |
 | `js/timeline-map.js` | Generated: land, rivers, every era's borders |
 | `data/units/*.json` | Generated: the provinces and states of 1939, 1947, 1950, 1956 and today, fetched when needed |
 | `data/plates/*.json` | Generated: the snapshots traced from Joppen's plates, fetched when needed |
