@@ -1,0 +1,143 @@
+/* Shared look: colours (day and night), fonts, buttons, map pins and the tooltip. They match the
+   monuments site (https://monuments-of-india-nu.vercel.app), whose css/style.css they came from. */
+:root {
+  --bg: #eceef3;
+  --fg: #1c1f30;
+  --muted: #5a5f77;
+  --line: rgba(28, 31, 48, 0.12);
+  --panel: rgba(248, 249, 252, 0.86);
+  --glass: rgba(248, 249, 252, 0.5);
+  --active: rgba(208, 106, 18, 0.12);
+  --accent: #b8590c;
+  --sky-top: #86afd4;
+  --sky-horizon: #ebe2d3;
+  --ground: #b7a684;
+  --scene-mode: day;
+  --sea: #dde6ec;
+  --land: #f1e8d5;
+  --land-line: rgba(122, 92, 52, 0.32);
+  --outline: #8a6a45;
+  --t-sacred: #cf5f12;
+  --t-fort: #b02a5c;
+  --t-memorial: #2d6aa6;
+  --t-civic: #2c8452;
+  --pin-ring: #ffffff;
+  --font-display: "Rozha One", "Georgia", serif;
+  --font-body: "Hind", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10121d;
+    --fg: #ebeaf2;
+    --muted: #a0a3ba;
+    --line: rgba(235, 234, 242, 0.12);
+    --panel: rgba(18, 20, 33, 0.8);
+    --glass: rgba(18, 20, 33, 0.5);
+    --active: rgba(242, 160, 61, 0.14);
+    --accent: #f2a03d;
+    --sky-top: #060a1a;
+    --sky-horizon: #2c2944;
+    --ground: #24242f;
+    --scene-mode: night;
+    --sea: #0b0d17;
+    --land: #1e2132;
+    --land-line: rgba(235, 234, 242, 0.16);
+    --outline: #8d8fb2;
+    --t-sacred: #f39a4b;
+    --t-fort: #ec6b97;
+    --t-memorial: #66a8e6;
+    --t-civic: #55c98f;
+    --pin-ring: #10121d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10121d;
+  --fg: #ebeaf2;
+  --muted: #a0a3ba;
+  --line: rgba(235, 234, 242, 0.12);
+  --panel: rgba(18, 20, 33, 0.8);
+  --glass: rgba(18, 20, 33, 0.5);
+  --active: rgba(242, 160, 61, 0.14);
+  --accent: #f2a03d;
+  --sky-top: #060a1a;
+  --sky-horizon: #2c2944;
+  --ground: #24242f;
+  --scene-mode: night;
+  --sea: #0b0d17;
+  --land: #1e2132;
+  --land-line: rgba(235, 234, 242, 0.16);
+  --outline: #8d8fb2;
+  --t-sacred: #f39a4b;
+  --t-fort: #ec6b97;
+  --t-memorial: #66a8e6;
+  --t-civic: #55c98f;
+  --pin-ring: #10121d;
+  color-scheme: dark;
+}
+
+[hidden] { display: none !important; }
+
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+.btn {
+  height: 36px;
+  min-width: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--fg);
+  font: 500 13px/1 var(--font-body);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn:hover { border-color: var(--accent); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn[aria-pressed="true"] { color: var(--accent); }
+
+.pin circle { stroke: var(--pin-ring); stroke-width: 1.6; vector-effect: non-scaling-stroke; transition: stroke 0.15s; }
+.pin.t-sacred circle { fill: var(--t-sacred); }
+.pin.t-fort circle { fill: var(--t-fort); }
+.pin.t-memorial circle { fill: var(--t-memorial); }
+.pin.t-civic circle { fill: var(--t-civic); }
+.pin:hover circle, .pin:focus-visible circle, .pin.hl circle { stroke: var(--accent); stroke-width: 3.2; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.dot.t-sacred { background: var(--t-sacred); }
+.dot.t-fort { background: var(--t-fort); }
+.dot.t-memorial { background: var(--t-memorial); }
+.dot.t-civic { background: var(--t-civic); }
+.maptip {
+  position: absolute;
+  max-width: 260px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 13px;
+  line-height: 1.35;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.maptip strong { font-weight: 600; }
+.maptip span { color: var(--muted); }

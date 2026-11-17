@@ -1,5 +1,5 @@
-/* The timeline page (timeline.html). Colours, fonts, buttons, pins and the tooltip come from
-   style.css. Layout: the map on the left, the era's card on the right, the year slider along the
+/* The atlas page (index.html). Colours, fonts, buttons, pins and the tooltip come from
+   base.css. Layout: the map on the left, the era's card on the right, the year slider along the
    bottom; on a phone the card goes under the map and the page scrolls. */
 :root {
   --p-a: #b8590c;

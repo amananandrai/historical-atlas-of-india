@@ -1,7 +1,7 @@
-// The timeline page (timeline.html): a map of the subcontinent that changes with a year slider.
+// The atlas page (index.html): a map of the subcontinent that changes with a year slider.
 // Each era shows a border snapshot where one is drawn, a short history, and a pin for every
-// monument standing by that year. A pin opens the monument's 3D model on the main page.
-import { MONUMENTS } from './data.js';
+// monument standing by that year. A pin opens the monument's 3D model on the monuments site.
+import { MONUMENTS, MONUMENTS_SITE } from './monuments.js';
 import { ERAS, formatYear } from './timeline-data.js';
 import { TMAP, project } from './timeline-map.js';
 
@@ -55,7 +55,7 @@ const tip = $('tl-tip');
 
 const pins = MONUMENTS.map((m) => {
   const [x, y] = project(m.lat, m.lng);
-  const a = el('a', { href: `index.html#${m.id}`, class: `pin t-${m.type}`, 'aria-label': `${m.name}, ${m.place}, ${m.built}. Open the 3D model` });
+  const a = el('a', { href: `${MONUMENTS_SITE}/#${m.id}`, class: `pin t-${m.type}`, 'aria-label': `${m.name}, ${m.place}, ${m.built}. Open the 3D model` });
   a.appendChild(el('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: 3 }));
   const show = () => {
     tip.innerHTML = `<strong>${esc(m.name)}</strong><span>${esc(m.place)} · ${esc(m.built)}</span><span>${esc(TYPES[m.type] || '')} · open in 3D</span>`;
@@ -158,8 +158,8 @@ function drawCard(i) {
   $('c-dates').innerHTML = e.dates.map((d) => `<li>${esc(d)}</li>`).join('');
   const lead = e.lead && byId.get(e.lead);
   $('c-lead').innerHTML = lead
-    ? `<a class="lead" href="index.html#${lead.id}">
-         <img src="assets/views/${lead.id}.png" alt="" width="800" height="450" loading="lazy">
+    ? `<a class="lead" href="${MONUMENTS_SITE}/#${lead.id}">
+         <img src="${MONUMENTS_SITE}/assets/views/${lead.id}.png" alt="" width="800" height="450" loading="lazy">
          <span class="lead-text"><strong>${esc(lead.name)}</strong><span>${esc(lead.place)} · ${esc(lead.built)}</span><span class="go">Open the 3D model →</span></span>
        </a>`
     : `<p class="lead-none">${esc(e.leadNote || '')}</p>`;
@@ -167,7 +167,7 @@ function drawCard(i) {
   const built = MONUMENTS.filter((m) => m.year >= e.start && (m.year < e.end || (last && m.year === e.end)) && m.id !== e.lead).sort((a, b) => a.year - b.year);
   $('c-built-wrap').hidden = !built.length;
   $('c-built-title').textContent = `Also built in this era (${built.length})`;
-  $('c-built').innerHTML = built.map((m) => `<li><a href="index.html#${m.id}">${esc(m.name)}</a> <span>${esc(m.built)}</span></li>`).join('');
+  $('c-built').innerHTML = built.map((m) => `<li><a href="${MONUMENTS_SITE}/#${m.id}">${esc(m.name)}</a> <span>${esc(m.built)}</span></li>`).join('');
   $('tl-card').scrollTop = 0;
 }
 
@@ -246,7 +246,7 @@ playBtn.addEventListener('click', () => {
 });
 
 /* ---------- start ---------- */
-// timeline.html#1605 opens at that year; with no year the page opens on the Mauryas.
+// index.html#1605 opens at that year; with no year the page opens on the Mauryas.
 function fromHash() {
   const y = parseInt(location.hash.slice(1), 10);
   const year = Number.isFinite(y) ? Math.max(ERAS[0].start, Math.min(ERAS.at(-1).end, y)) : -250;

@@ -1,4 +1,4 @@
-// The timeline page's eras and border snapshots (timeline.html). Years below zero are BCE.
+// The timeline page's eras and border snapshots (index.html). Years below zero are BCE.
 //
 // An era's `map` says what is drawn for it: `fills` are shapes from js/timeline-map.js, `labels` are
 // names placed at [lat, lng]. `kind` picks a label's look: 'in' a region inside the main power, 'state' a
