@@ -34,6 +34,32 @@
 .tl-head .hi { margin: 0; color: var(--accent); font-size: 15px; }
 .tl-head .btn { text-decoration: none; flex: none; }
 .tl-nav { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.tl-head { gap: 12px; }
+.search { position: relative; flex: 1 1 260px; max-width: 380px; margin-left: auto; }
+.search input {
+  width: 100%; height: 36px; padding: 0 14px; border: 1px solid var(--line); border-radius: 18px;
+  background: var(--panel); color: var(--fg); font: 400 14px var(--font-body); box-sizing: border-box;
+}
+.search input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+.q-list {
+  position: absolute; z-index: 20; top: 42px; left: 0; right: 0; margin: 0; padding: 4px; list-style: none;
+  max-height: min(60vh, 440px); overflow-y: auto; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--bg); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+}
+.q-list a { display: grid; grid-template-columns: 74px 1fr; gap: 0 8px; padding: 6px 8px; border-radius: 8px; color: inherit; text-decoration: none; }
+.q-list li[aria-selected="true"] a, .q-list a:hover { background: var(--active); }
+.q-kind { grid-row: span 2; color: var(--muted); font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding-top: 3px; }
+.q-label { font-weight: 600; font-size: 14px; }
+.q-detail { color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.q-none { padding: 8px 10px; color: var(--muted); font-size: 13px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.tl-map .pin.found circle { stroke: var(--accent); stroke-width: 3.4; }
+.term.lit { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.src-link { white-space: nowrap; font-weight: 600; }
+.sources { margin: 4px 0 0; padding: 0; list-style: none; }
+.source { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.source p { margin: 0 0 2px; font-size: 13.5px; }
+.src-at { font-size: 12.5px; color: var(--muted); }
 
 /* ---------- map ---------- */
 .tl-stage { grid-area: stage; position: relative; min-height: 0; background: var(--sea); overflow: hidden; }
@@ -264,6 +290,7 @@
   .tl-body { overflow: auto; }
   .tl { height: auto; min-height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto auto; grid-template-areas: "head" "stage" "chart" "bar" "card"; }
   .tl-head { flex-wrap: wrap; padding: 10px 14px; }
+  .search { order: 3; flex-basis: 100%; max-width: none; margin-left: 0; }
   .tl-nav { justify-content: flex-start; }
   .tl-nav .btn { height: 32px; padding: 0 10px; }
   .tl-chart { padding: 4px 6px; overflow-x: auto; }

@@ -11,4 +11,4 @@ appears on the map and moves with the slider.
 | 3. More borders | Trace more of Joppen's plates (1022, 1318, 1398, 1525, 1751, 1795, 1823, 1856) with the georeferencing in `tools/trace-princely-states.py`, made to read several polity colours | A snapshot every century or so | Started: 1525 and 1751 traced, with tools to fit and check a plate. 1022, 1318, 1398, 1795, 1823 and 1856 to do. |
 | 4. Art | About 20 schools of sculpture and painting (Gandhara, Mathura, Chola bronzes, Mughal, Rajput, Pahari, Bengal School…) with their centres and works, using CC0 and public-domain images only | Art history beside political history | To do. |
 | 5. Events and tours | Battles, travellers' routes, trade routes; three or four guided tours | The atlas reads as a story | Battles layer done (24 battles); travellers, trade routes and tours to do. |
-| 6. Polish | Search, a two-year compare view, Hindi, a sources page | Ready to share widely | To do. |
+| 6. Polish | Search, a two-year compare view, Hindi, a sources page | Ready to share widely | Search and the sources page done; compare view and Hindi to do. |

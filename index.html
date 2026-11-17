@@ -23,10 +23,17 @@
       <h1>Historical Atlas of India</h1>
       <p class="hi" lang="hi">भारत का ऐतिहासिक एटलस</p>
     </div>
+    <div class="search" role="search">
+      <label class="visually-hidden" for="q">Search the atlas</label>
+      <input id="q" type="search" placeholder="Search rulers, places, styles, years…" autocomplete="off" spellcheck="false"
+        role="combobox" aria-expanded="false" aria-controls="q-list" aria-autocomplete="list">
+      <ul id="q-list" class="q-list" role="listbox" aria-label="Results" hidden></ul>
+    </div>
     <nav class="tl-nav" aria-label="Atlas">
       <button class="btn" id="nav-chart" type="button" aria-pressed="false" aria-controls="tl-chart">Dynasties</button>
       <a class="btn" href="#styles">Styles</a>
       <a class="btn" href="#glossary">Glossary</a>
+      <a class="btn" href="#sources">Sources</a>
       <a class="btn btn-3d" href="https://monuments-of-india-nu.vercel.app">Monuments in 3D</a>
     </nav>
   </header>
