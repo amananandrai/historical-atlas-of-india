@@ -26,9 +26,13 @@ Every monument pin opens that monument's 3D model on the
   (the Marathas at their widest), 1823 (after the Maratha wars) and 1856 (on the eve of the
   revolt), each fitted to the plate's printed grid and traced to within about 20–30 km.
 - **The provinces and princely states** of 1939 and of 15 August 1947.
-- **The Republic in three maps**, which change as the slider moves: Republic Day 1950 (Part A, B,
-  C and D states), after the States Reorganisation Act of 1956, and today's 28 states and 8 union
-  territories.
+- **The Republic, change by change:** a map for every reorganisation of the states, with the names
+  of its day: Republic Day 1950 (Part A, B, C and D states), Andhra State (1953), the States
+  Reorganisation Act (1956), Gujarat and Maharashtra (1960), Goa (1961), Nagaland (1963), the
+  Punjab (1966), Tamil Nadu (1969), Himachal Pradesh (1971), the North-East (1972), Karnataka
+  (1973), Sikkim (1975), Mizoram, Arunachal and Goa as states (1987), Chhattisgarh, Uttaranchal and
+  Jharkhand (2000), Uttarakhand and Puducherry (2007), Odisha (2011), Telangana (2014), Jammu and
+  Kashmir and Ladakh (2019), and today's 28 states and 8 union territories.
 - **A pin for every monument standing by the chosen year**, with its style and the ruler it was built under.
 - **Rulers and dynasties:** 59 dynasties and 125 rulers, each with a card (reign, capitals, the
   monuments built in their time, their battles). The era card lists who ruled in the chosen year,
@@ -58,7 +62,7 @@ A static site with no build step: `index.html`, `css/` and ES modules in `js/`.
 | `js/atlas/dynasties.js`, `styles.js`, `battles.js` | Rulers and dynasties, architecture styles and the glossary, battles |
 | `js/atlas/sources.js`, `search.js` | The sources page, and the search index |
 | `js/timeline-map.js` | Generated: land, rivers, every era's borders |
-| `data/units/*.json` | Generated: the provinces and states of 1939, 1947, 1950, 1956 and today, fetched when needed |
+| `data/units/*.json` | Generated: the provinces and states of 1939, 1947 and every date of the Republic, fetched when needed |
 | `data/plates/*.json` | Generated: the snapshots traced from Joppen's plates, fetched when needed |
 | `tools/plates/` | The traced plates and the tools that fit and check them ([how](tools/plates/README.md)) |
 | `js/monuments.js` | Generated: the monuments pinned on the map |

@@ -7,6 +7,49 @@
 // second field picks its colour and hatch, 'a' to 'd'.
 // The histories are short summaries from general reference works; the borders are approximate.
 
+// The Republic's maps, one for each change to its states, built from js/timeline-map.js's sets of
+// units (tools/build-state-maps.py). Each says what changed; the neighbours are named as they were.
+const SMALL = ['Delhi', 'Goa', 'Sikkim', 'Tripura', 'Meghalaya', 'Mizoram', 'Manipur', 'Nagaland', 'Chandigarh', 'Puducherry', 'Pondicherry'];
+const neighbours = (y) => [
+  ['New Delhi', 28.61, 77.21, 'city'], ['Pakistan', 29.3, 68.3, 'out'], ['Nepal', 28.4, 83.6, 'out'], ['Bhutan', 27.45, 90.5, 'out'],
+  [y < 1989 ? 'Burma' : 'Myanmar', 21.5, 96.2, 'out'], [y < 1972 ? 'Ceylon' : 'Sri Lanka', 7.8, 80.7, 'out'],
+  [y < 1971 ? 'East Pakistan' : 'Bangladesh', 24.0, 90.2, 'out'], ['China', 31.5, 87.0, 'out'],
+  ...(y < 1961 ? [['Goa (Portuguese)', 15.3, 73.3, 'out']] : []), ...(y < 1975 ? [['Sikkim', 28.15, 88.3, 'out']] : []),
+];
+const CENSUS = 'Built from 2011 census districts (DataMeet, CC BY 4.0), which follow these lines closely; small transfers between states are not drawn.';
+const rep = (from, units, title, what) => ({
+  from, units, title, certainty: `${what} ${CENSUS}`,
+  unitKinds: { a: 'in', c: 'unit' }, unlabelled: SMALL,
+  key: [['a', 'States'], ['c', 'Union territories']],
+  labels: neighbours(from),
+});
+const REPUBLIC_MAPS = [
+  {
+    from: 1953, units: '1953', title: 'Andhra State, 1 October 1953',
+    certainty: `The Telugu districts of Madras become Andhra State, the first state formed on language lines, after Potti Sriramulu’s fast; Bellary goes to Mysore. ${CENSUS}`,
+    unitKinds: { a: 'in', b: 'state', c: 'unit', d: 'unit' }, unlabelled: ['Delhi', 'Ajmer', 'Coorg'],
+    key: [['a', 'Part A: former provinces'], ['b', 'Part B: former princely states'], ['c', 'Part C: small states'], ['d', 'Part D: Andaman and Nicobar']],
+    labels: neighbours(1953),
+  },
+  rep(1956, '1956', 'After the States Reorganisation Act, 1 November 1956', 'States redrawn on language lines: 14 states and 6 union territories. The Part A, B and C states are gone. Pondicherry, handed over by France in 1954, is shown as a union territory (in law from 1962).'),
+  rep(1960, '1960', 'Gujarat and Maharashtra, 1 May 1960', 'Bombay State is divided into Gujarat and Maharashtra.'),
+  rep(1961, '1961', 'Goa, Daman and Diu, December 1961', 'Dadra and Nagar Haveli (August) and Goa, Daman and Diu (December) join India as union territories.'),
+  rep(1963, '1963', 'Nagaland, 1 December 1963', 'Nagaland is formed from Assam’s Naga Hills and Tuensang.'),
+  rep(1966, '1966', 'The Punjab reorganised, 1 November 1966', 'The Punjab is divided: Haryana becomes a state, Chandigarh a union territory shared as capital, and the hill districts go to Himachal Pradesh.'),
+  rep(1969, '1969', 'Madras becomes Tamil Nadu, 14 January 1969', 'Madras State is renamed Tamil Nadu.'),
+  rep(1971, '1971', 'Himachal Pradesh a state, 25 January 1971', 'Himachal Pradesh becomes the eighteenth state.'),
+  rep(1972, '1972', 'The North-East reorganised, 21 January 1972', 'Manipur and Tripura become states, Meghalaya is carved out of Assam, and Mizoram and Arunachal Pradesh become union territories.'),
+  rep(1973, '1973', 'Mysore becomes Karnataka, 1 November 1973', 'Mysore State is renamed Karnataka, and the Laccadive, Minicoy and Amindivi Islands Lakshadweep.'),
+  rep(1975, '1975', 'Sikkim, 16 May 1975', 'Sikkim, an Indian protectorate since 1950, becomes the twenty-second state.'),
+  rep(1987, '1987', 'Mizoram, Arunachal Pradesh and Goa, 1987', 'Mizoram and Arunachal Pradesh (February) and Goa (May) become states; Daman and Diu remain a union territory.'),
+  rep(2000, '2000', 'Chhattisgarh, Uttaranchal and Jharkhand, November 2000', 'Three new states: Chhattisgarh from Madhya Pradesh, Uttaranchal from Uttar Pradesh and Jharkhand from Bihar.'),
+  rep(2007, '2007', 'Uttarakhand and Puducherry, 2006–2007', 'Pondicherry is renamed Puducherry (2006) and Uttaranchal Uttarakhand (1 January 2007).'),
+  rep(2011, '2011', 'Orissa becomes Odisha, 1 November 2011', 'Orissa is renamed Odisha.'),
+  rep(2014, '2014', 'Telangana, 2 June 2014', 'Telangana is formed from Andhra Pradesh, India’s twenty-ninth state.'),
+  rep(2019, '2019', 'Jammu and Kashmir and Ladakh, 31 October 2019', 'Jammu and Kashmir becomes two union territories, Jammu and Kashmir and Ladakh. The map shows Kashmir as India draws it (Natural Earth).'),
+  rep(2020, 'today', 'India today: 28 states and 8 union territories', 'Since 26 January 2020, when Dadra and Nagar Haveli and Daman and Diu were merged. The map shows Kashmir as India draws it (Natural Earth).'),
+];
+
 export const ERAS = [
   {
     id: 'indus', name: 'Indus Valley Civilisation', short: 'Indus Valley', start: -3300, end: -1500, span: 'c. 3300–1300 BCE',
@@ -273,7 +316,7 @@ export const ERAS = [
     id: 'republic', name: 'Republic of India', short: 'Republic', start: 1950, end: new Date().getFullYear(), span: '1950–today',
     powers: 'Elected governments under the Constitution.',
     change: 'States are redrawn on language lines, Goa and Sikkim join, and new states are carved out of old ones.',
-    dates: ['Republic Day, 26 January 1950', 'States Reorganisation Act, 1 November 1956', 'Goa joins, 1961', 'Bangladesh independent, 1971', 'Sikkim joins, 1975', 'Telangana formed, 2014', 'Ladakh a union territory, 2019'],
+    dates: ['Republic Day, 26 January 1950', 'Andhra State, 1953', 'States Reorganisation Act, 1 November 1956', 'Gujarat and Maharashtra, 1960', 'Goa joins, 1961', 'Punjab reorganised, 1966', 'North-East reorganised, 1972', 'Sikkim joins, 1975', 'Three new states, 2000', 'Telangana formed, 2014', 'Ladakh a union territory, 2019'],
     lead: 'capitol-complex',
     maps: [
       {
@@ -283,20 +326,7 @@ export const ERAS = [
         labels: [['New Delhi', 28.61, 77.21, 'city'], ['Pakistan', 29.3, 68.3, 'out'], ['Nepal', 28.4, 83.6, 'out'], ['Bhutan', 27.45, 90.5, 'out'], ['Burma', 21.5, 96.2, 'out'],
           ['Ceylon', 7.8, 80.7, 'out'], ['Tibet', 31.5, 87.0, 'out'], ['East Pakistan', 24.3, 90.2, 'out'], ['Goa (Portuguese)', 15.3, 73.3, 'out'], ['Sikkim', 28.15, 88.3, 'out']],
       },
-      {
-        from: 1956, title: 'After the States Reorganisation Act, 1 November 1956', certainty: 'States redrawn on language lines: 14 states and 6 union territories. Built from 2011 census districts (DataMeet, CC BY 4.0). Changes since: Bombay split into Gujarat and Maharashtra (1960), Goa (1961), Nagaland (1963), Haryana and Himachal (1966), Meghalaya, Manipur and Tripura (1972), Sikkim (1975), Mizoram and Arunachal (1987), Chhattisgarh, Jharkhand and Uttarakhand (2000), Telangana (2014).',
-        units: '1956', unitKinds: { a: 'in', c: 'unit' }, unlabelled: ['Delhi'],
-        key: [['a', 'States'], ['c', 'Union territories']],
-        labels: [['New Delhi', 28.61, 77.21, 'city'], ['Pakistan', 29.3, 68.3, 'out'], ['Nepal', 28.4, 83.6, 'out'], ['Bhutan', 27.45, 90.5, 'out'], ['Burma', 21.5, 96.2, 'out'],
-          ['Ceylon', 7.8, 80.7, 'out'], ['Tibet', 31.5, 87.0, 'out'], ['East Pakistan', 24.3, 90.2, 'out'], ['Goa (Portuguese)', 15.3, 73.3, 'out'], ['Sikkim', 28.15, 88.3, 'out']],
-      },
-      {
-        from: 2020, title: 'India today: 28 states and 8 union territories', certainty: 'Since 26 January 2020, when Dadra and Nagar Haveli and Daman and Diu were joined; Jammu and Kashmir and Ladakh became union territories in 2019. Built from 2011 census districts (DataMeet, CC BY 4.0), with Telangana and Ladakh from their districts, and Kashmir as India draws it (Natural Earth).',
-        units: 'today', unitKinds: { a: 'in', c: 'unit' }, unlabelled: ['Delhi', 'Goa', 'Sikkim', 'Tripura', 'Meghalaya', 'Mizoram', 'Manipur', 'Nagaland'],
-        key: [['a', 'States'], ['c', 'Union territories']],
-        labels: [['New Delhi', 28.61, 77.21, 'city'], ['Pakistan', 29.3, 68.3, 'out'], ['Nepal', 28.4, 83.6, 'out'], ['Bhutan', 27.45, 90.5, 'out'],
-          ['Myanmar', 21.5, 96.2, 'out'], ['Sri Lanka', 7.8, 80.7, 'out'], ['Bangladesh', 24.0, 90.2, 'out'], ['China', 31.5, 87.0, 'out']],
-      },
+      ...REPUBLIC_MAPS,
     ],
   },
 ];

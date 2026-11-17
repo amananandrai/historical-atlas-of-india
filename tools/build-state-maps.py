@@ -5,8 +5,13 @@ the timeline page. tools/build-timeline-map.py turns it into map shapes and labe
   1939       British provinces and princely states
   1947       15 August 1947: the provinces of the two dominions and the princely states
   1950       26 January 1950: Part A, B, C and D states of the Constitution
+  1953       1 October 1953: Andhra State carved out of Madras
   1956       1 November 1956: states and union territories after the States Reorganisation Act
+  1960 ...   every later change to the states: 1960, 1961, 1963, 1966, 1969, 1971, 1972, 1973, 1975,
+             1987, 2000, 2007, 2011, 2014 and 2019
   today      28 states and 8 union territories (since January 2020)
+
+Each shape is written once with the list of dates it belongs to (`snapshots`).
 
 Each unit is a union of 2011 census districts, which follow the old boundaries closely, since most
 districts were carried over whole from the provinces and states:
@@ -212,43 +217,113 @@ for cls, units in P1950.items():
     for n, g in units.items():
         add('1950', n, cls, g, PART[cls])
 
-# ---------- 1 November 1956 ----------
-S1956 = {
+# ---------- 1 October 1953: Andhra State ----------
+BELLARY = D('Karnataka', 'Bellary')
+P1953 = {cls: dict(units) for cls, units in P1950.items()}
+P1953['a']['Madras'] = PROV_COMMON['Madras'].difference(ANDHRA).difference(BELLARY)
+P1953['a']['Andhra'] = ANDHRA
+P1953['b']['Mysore'] = OLD_MYSORE.union(BELLARY)
+for cls, units in P1953.items():
+    for n, g in units.items():
+        add('1953', n, cls, g, PART[cls])
+
+# ---------- 1 November 1956 onwards ----------
+# Each date applies its changes to the one before: `states` and `uts` map a name to its shape.
+# A name change keeps the shape; a split or merger gives new shapes.
+REORGS = []
+def snapshot(key, states, uts):
+    REORGS.append(key)
+    for n, g in states.items():
+        add(key, n, 'a', g, 'State')
+    for n, g in uts.items():
+        add(key, n, 'c', g, 'Union territory')
+
+states = {
     'Andhra Pradesh': S('Andhra Pradesh'), 'Assam': NORTHEAST, 'Bihar': S('Bihar', 'Jharkhand'),
     'Bombay': S('Gujarat', 'Maharashtra'), 'Jammu and Kashmir': KASHMIR, 'Kerala': S('Kerala'),
     'Madhya Pradesh': S('Madhya Pradesh', 'Chhattisgarh'), 'Madras': S('Tamil Nadu'), 'Mysore': S('Karnataka'),
     'Orissa': S('Odisha'), 'Punjab': PUNJAB_1947_IN, 'Rajasthan': S('Rajasthan'),
     'Uttar Pradesh': S('Uttar Pradesh', 'Uttarakhand'), 'West Bengal': S('West Bengal'),
 }
-U1956 = {
+uts = {
     'Delhi': S('NCT of Delhi'), 'Himachal Pradesh': unary_union([HIMACHAL_1950, BILASPUR]), 'Manipur': S('Manipur'),
-    'Tripura': S('Tripura'), 'Andaman and Nicobar': S('Andaman & Nicobar Island'), 'Laccadive Islands': S('Lakshadweep'),
+    'Tripura': S('Tripura'), 'Andaman and Nicobar': S('Andaman & Nicobar Island'),
+    'Laccadive, Minicoy and Amindivi Islands': S('Lakshadweep'),
+    # Pondicherry passed to India in fact on 1 November 1954, in law in 1962.
+    'Pondicherry': S('Puducherry'),
 }
-for n, g in S1956.items():
-    add('1956', n, 'a', g, 'State')
-for n, g in U1956.items():
-    add('1956', n, 'c', g, 'Union territory')
+def rename(d, old, new):
+    d[new] = d.pop(old)
 
-# ---------- today ----------
-TODAY = {n: S(n) for n in ('Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
-                           'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
-                           'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Tripura', 'Uttar Pradesh',
-                           'Uttarakhand', 'West Bengal')}
-TODAY['Arunachal Pradesh'] = S('Arunanchal Pradesh')
-TODAY['Andhra Pradesh'] = ANDHRA
-TODAY['Telangana'] = TELANGANA
-UT_TODAY = {
-    'Jammu and Kashmir': JK_UT, 'Ladakh': LADAKH, 'Delhi': S('NCT of Delhi'), 'Chandigarh': S('Chandigarh'),
-    'Dadra and Nagar Haveli and Daman and Diu': S('Dadara & Nagar Havelli', 'Daman & Diu'), 'Puducherry': S('Puducherry'),
-    'Lakshadweep': S('Lakshadweep'), 'Andaman and Nicobar': S('Andaman & Nicobar Island'),
-}
-assert len(TODAY) == 28 and len(UT_TODAY) == 8
-for n, g in TODAY.items():
-    add('today', n, 'a', g, 'State')
-for n, g in UT_TODAY.items():
-    add('today', n, 'c', g, 'Union territory')
+snapshot('1956', states, uts)
+# 1 May 1960: Bombay State is split.
+del states['Bombay']; states['Gujarat'] = S('Gujarat'); states['Maharashtra'] = S('Maharashtra')
+snapshot('1960', states, uts)
+# 1961: Dadra and Nagar Haveli (August) and Goa, Daman and Diu (December) join India.
+uts['Dadra and Nagar Haveli'] = S('Dadara & Nagar Havelli'); uts['Goa, Daman and Diu'] = S('Goa', 'Daman & Diu')
+snapshot('1961', states, uts)
+# 1 December 1963: Nagaland.
+states['Nagaland'] = S('Nagaland'); states['Assam'] = NORTHEAST.difference(S('Nagaland'))
+snapshot('1963', states, uts)
+# 1 November 1966: the Punjab is reorganised.
+states['Punjab'] = S('Punjab'); states['Haryana'] = S('Haryana')
+uts['Chandigarh'] = S('Chandigarh'); uts['Himachal Pradesh'] = S('Himachal Pradesh')
+snapshot('1966', states, uts)
+# 14 January 1969: Madras State becomes Tamil Nadu.
+rename(states, 'Madras', 'Tamil Nadu')
+snapshot('1969', states, uts)
+# 25 January 1971: Himachal Pradesh becomes a state.
+states['Himachal Pradesh'] = uts.pop('Himachal Pradesh')
+snapshot('1971', states, uts)
+# 21 January 1972: the North-East is reorganised.
+states['Manipur'] = uts.pop('Manipur'); states['Tripura'] = uts.pop('Tripura'); states['Meghalaya'] = S('Meghalaya')
+states['Assam'] = S('Assam'); uts['Mizoram'] = S('Mizoram'); uts['Arunachal Pradesh'] = S('Arunanchal Pradesh')
+snapshot('1972', states, uts)
+# 1 November 1973: Mysore becomes Karnataka, and the Laccadives Lakshadweep.
+rename(states, 'Mysore', 'Karnataka'); rename(uts, 'Laccadive, Minicoy and Amindivi Islands', 'Lakshadweep')
+snapshot('1973', states, uts)
+# 16 May 1975: Sikkim.
+states['Sikkim'] = S('Sikkim')
+snapshot('1975', states, uts)
+# 1987: Mizoram and Arunachal Pradesh (February) and Goa (May) become states.
+states['Mizoram'] = uts.pop('Mizoram'); states['Arunachal Pradesh'] = uts.pop('Arunachal Pradesh')
+del uts['Goa, Daman and Diu']; states['Goa'] = S('Goa'); uts['Daman and Diu'] = S('Daman & Diu')
+snapshot('1987', states, uts)
+# November 2000: Chhattisgarh, Uttaranchal and Jharkhand.
+states['Madhya Pradesh'] = S('Madhya Pradesh'); states['Chhattisgarh'] = S('Chhattisgarh')
+states['Uttar Pradesh'] = S('Uttar Pradesh'); states['Uttaranchal'] = S('Uttarakhand')
+states['Bihar'] = S('Bihar'); states['Jharkhand'] = S('Jharkhand')
+snapshot('2000', states, uts)
+# Pondicherry becomes Puducherry (October 2006) and Uttaranchal Uttarakhand (1 January 2007).
+rename(uts, 'Pondicherry', 'Puducherry'); rename(states, 'Uttaranchal', 'Uttarakhand')
+snapshot('2007', states, uts)
+# 1 November 2011: Orissa becomes Odisha.
+rename(states, 'Orissa', 'Odisha')
+snapshot('2011', states, uts)
+# 2 June 2014: Telangana.
+states['Andhra Pradesh'] = ANDHRA; states['Telangana'] = TELANGANA
+snapshot('2014', states, uts)
+# 31 October 2019: Jammu and Kashmir becomes two union territories.
+del states['Jammu and Kashmir']; uts['Jammu and Kashmir'] = JK_UT; uts['Ladakh'] = LADAKH
+snapshot('2019', states, uts)
+# 26 January 2020: Dadra and Nagar Haveli and Daman and Diu are merged.
+uts['Dadra and Nagar Haveli and Daman and Diu'] = unary_union([uts.pop('Dadra and Nagar Haveli'), uts.pop('Daman and Diu')])
+assert len(states) == 28 and len(uts) == 8, (len(states), len(uts))
+snapshot('today', states, uts)
+
+# Shapes repeat from date to date: write each once, with the dates it belongs to.
+merged = {}
+for f in features:
+    p = f['properties']
+    k = (p['name'], p['cls'], p['note'], json.dumps(f['geometry'], separators=(',', ':')))
+    if k in merged:
+        merged[k]['properties']['snapshots'].append(p['snapshot'])
+    else:
+        f['properties'] = {'snapshots': [p['snapshot']], 'name': p['name'], 'cls': p['cls'], 'note': p['note']}
+        merged[k] = f
+features = list(merged.values())
 
 os.makedirs(os.path.dirname(out), exist_ok=True)
 json.dump({'type': 'FeatureCollection', 'features': features}, open(out, 'w'), separators=(',', ':'))
-print('wrote', os.path.normpath(out), os.path.getsize(out), 'bytes;',
-      {s: sum(1 for f in features if f['properties']['snapshot'] == s) for s in ('1939', '1947', '1950', '1956', 'today')})
+print('wrote', os.path.normpath(out), os.path.getsize(out), 'bytes;', len(features), 'shapes;',
+      {s: sum(1 for f in features if s in f['properties']['snapshots']) for s in ['1939', '1947', '1950', '1953'] + REORGS})

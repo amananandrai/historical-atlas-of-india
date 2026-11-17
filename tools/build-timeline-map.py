@@ -348,15 +348,18 @@ for f in sorted(glob.glob(os.path.join(plates_dir, '*.json'))):
     plate_sets.append(snap)
     print('plate', snap, len(units_p), 'polities', os.path.getsize(os.path.join(plates_out, f'{snap}.json')), 'bytes')
 
-# Provinces and states at five dates, from tools/build-state-maps.py. Each unit gets a shape and a
+# Provinces and states at each date, from tools/build-state-maps.py. Each unit gets a shape and a
 # label point inside it (none for units too small to letter).
 from shapely.ops import polylabel
 snap_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'state-snapshots.geojson')
 units = {}
 # Where the point inside the largest piece reads badly, a label point (lat, lng) by hand.
-LABEL_AT = {('1950', 'Punjab'): (31.3, 75.2), ('today', 'Jammu and Kashmir'): (33.25, 74.75), ('1950', 'Bombay'): (19.6, 74.4),
+LABEL_AT = {('1950', 'Punjab'): (31.3, 75.2), ('today', 'Jammu and Kashmir'): (33.25, 74.75), ('2019', 'Jammu and Kashmir'): (33.25, 74.75), ('2019', 'Ladakh'): (34.4, 77.9), ('1950', 'Bombay'): (19.6, 74.4),
             ('1939', 'Baluchistan'): (29.9, 67.4), ('1939', 'North-West Frontier'): (34.0, 71.2), ('1947', 'North-West Frontier'): (34.0, 71.2),
-            ('1947', 'West Punjab'): (30.4, 72.3), ('1939', 'Punjab'): (30.9, 73.2), ('today', 'Ladakh'): (34.4, 77.9), ('1947', 'Baluchistan'): (29.9, 67.4), ('1956', 'Bombay'): (20.6, 74.6)}
+            ('1947', 'West Punjab'): (30.4, 72.3), ('1939', 'Punjab'): (30.9, 73.2), ('today', 'Ladakh'): (34.4, 77.9), ('1947', 'Baluchistan'): (29.9, 67.4), ('1956', 'Bombay'): (20.6, 74.6),
+            ('1953', 'Punjab'): (31.3, 75.2), ('1953', 'Bombay'): (19.6, 74.4), ('1956', 'Punjab'): (31.0, 75.6), ('1960', 'Punjab'): (31.0, 75.6),
+            ('1961', 'Punjab'): (31.0, 75.6), ('1963', 'Punjab'): (31.0, 75.6)}
+# '*' places a name the same way at every date.
 for n, f in enumerate(json.load(open(snap_file))['features']):
     p, g = f['properties'], shape(f['geometry']).buffer(0)
     key = f"u{n}"
@@ -365,22 +368,26 @@ for n, f in enumerate(json.load(open(snap_file))['features']):
         del shapes[key]
         continue
     big = max(getattr(g, 'geoms', [g]), key=lambda q: q.area)
-    at = LABEL_AT.get((p['snapshot'], p['name']))
-    if at is None and big.area >= 0.3 and p['name'] != 'Princely states':   # the states are lettered by hand
+    auto = None
+    if big.area >= 0.3 and p['name'] != 'Princely states':   # the princely states are lettered by hand
         q = polylabel(big, 0.01)
-        at = (q.y, q.x)
-    units.setdefault(p['snapshot'], []).append([key, p['cls'], p['name'], p['note']] + ([round(at[0], 2), round(at[1], 2)] if at else []))
+        auto = (q.y, q.x)
+    for snap in p['snapshots']:
+        at = LABEL_AT.get((snap, p['name']), LABEL_AT.get(('*', p['name']), auto))
+        units.setdefault(snap, []).append([key, p['cls'], p['name'], p['note']] + ([round(at[0], 2), round(at[1], 2)] if at else []))
 
 # Each date's provinces and states go to a file of their own, data/units/<date>.json, which the page
 # fetches when the slider first reaches that date; the rest of the map loads with the page.
 units_dir = os.path.join(os.path.dirname(out), '..', 'data', 'units')
 os.makedirs(units_dir, exist_ok=True)
+used = set()
 for snap, us in units.items():
     keys = [u[0] for u in us]
     with open(os.path.join(units_dir, f'{snap}.json'), 'w') as f:
         json.dump({'shapes': {k: shapes[k] for k in keys}, 'units': us}, f, separators=(',', ':'))
-    for k in keys:
-        del shapes[k]
+    used.update(keys)
+for k in used:          # a shape can serve several dates, so they leave the main file only now
+    del shapes[k]
 
 data = {
     'width': round(W, 1), 'height': round(H, 1), 'lon0': LON0, 'lat1': LAT1, 'kx': round(KX, 5), 'k': K,
