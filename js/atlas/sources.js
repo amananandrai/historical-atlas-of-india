@@ -9,8 +9,8 @@ export const SOURCES = [
       {
         id: 'joppen', cite: 'Charles Joppen, Historical Atlas of India, for the Use of High Schools, Colleges and Private Students. Longmans, Green & Co., 1914; printed by Justus Perthes, Gotha.',
         url: 'https://archive.org/details/historicalatlaso00jopprich', terms: 'Public domain',
-        use: 'Traced: India in 1525 (map 14), India in 1751 (map 23), India in 1795 (map 27) and the princely states of “The Indian Empire in 1914” (map 33). Checked against: Ancient Aryan India, Alexander in 326 BC, India in the 2nd century, India in 1605 and India in 1805.',
-        at: [['1500', 'India in 1525'], ['1751', 'India in 1751'], ['1795', 'India in 1795'], ['1939', '1939']],
+        use: 'Traced: India in 1318 (map 12), India in 1525 (map 14), India in 1751 (map 23), India in 1795 (map 27) and the princely states of “The Indian Empire in 1914” (map 33). Checked against: Ancient Aryan India, Alexander in 326 BC, India in the 2nd century, India in 1605 and India in 1805.',
+        at: [['1318', 'India in 1318'], ['1500', 'India in 1525'], ['1751', 'India in 1751'], ['1795', 'India in 1795'], ['1939', '1939']],
       },
       {
         id: 'davies', cite: 'C. Collin Davies, An Historical Atlas of the Indian Peninsula. Oxford University Press, 1949.',

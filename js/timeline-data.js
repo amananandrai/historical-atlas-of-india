@@ -140,6 +140,12 @@ export const ERAS = [
         ],
       },
       {
+        from: 1296, plate: '1318', title: 'India in 1318, the Sultanate at its widest',
+        certainty: 'Traced from map 12, “India in 1318”, of Joppen’s Historical Atlas of India (1914, public domain), to within about 0.2–0.3°. Joppen draws Alauddin Khalji’s empire to the far south, counting the Deccan kingdoms that paid tribute after Malik Kafur’s campaigns; only Kashmir, Kutch, part of Kathiawar, Orissa and the Pandyas of Madurai lie outside it. Shown until 1449, as the plate for 1398 is not traced yet.',
+        labels: [['Delhi', 28.61, 77.21, 'city'], ['Devagiri', 19.94, 75.21, 'city'], ['Warangal', 17.95, 79.61, 'city-left'], ['Dwarasamudra', 13.21, 75.99, 'city'],
+          ['Nepal', 28.4, 84.2, 'out'], ['Tibet', 31.5, 87.0, 'out'], ['Ceylon', 7.8, 80.7, 'out']],
+      },
+      {
         from: 1450, plate: '1525', title: 'India in 1525, on the eve of Panipat',
         certainty: 'Traced from map 14, “India in 1525”, of Joppen’s Historical Atlas of India (1914, public domain). The scan is fitted to the plate’s printed grid and the borders followed on it, to within about 0.2–0.3° (20–30 km). The Lodi sultanate is shown as Joppen draws it, from Kabul to Bihar.',
         labels: [['Delhi', 28.61, 77.21, 'city'], ['Vijayanagara', 15.33, 76.46, 'city'], ['Nepal', 28.4, 84.2, 'out'], ['Tibet', 31.5, 87.0, 'out'], ['Ceylon', 7.8, 80.7, 'out']],

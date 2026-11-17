@@ -21,8 +21,8 @@ Every monument pin opens that monument's 3D model on the
   - the Delhi Sultanate (1236)
   - the Mughals and the Deccan sultanates (1605)
   - the Company, the Marathas and the Nizam (c. 1805)
-- **Snapshots traced from Joppen's 1914 atlas:** India in 1525 (on the eve of Panipat), India
-  in 1751 and India in 1795, each fitted to the plate's printed grid and traced to within about 20–30 km.
+- **Snapshots traced from Joppen's 1914 atlas:** India in 1318 (the Sultanate at its widest),
+  India in 1525 (on the eve of Panipat), India in 1751 and India in 1795, each fitted to the plate's printed grid and traced to within about 20–30 km.
 - **The provinces and princely states** of 1939 and of 15 August 1947.
 - **The Republic in three maps**, which change as the slider moves: Republic Day 1950 (Part A, B,
   C and D states), after the States Reorganisation Act of 1956, and today's 28 states and 8 union

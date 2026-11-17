@@ -12,6 +12,7 @@ label by hand. A polity in several pieces gives `rings` in place of `ring`.
 
 | Plate | Joppen's map | Era on the atlas |
 | --- | --- | --- |
+| `1318.json` | 12, India in 1318 | Delhi Sultanate, from 1296 |
 | `1525.json` | 14, India in 1525 | Delhi Sultanate, from 1450 |
 | `1751.json` | 23, India in 1751 | Marathas and the East India Company, from 1707 |
 | `1795.json` | 27, India in 1795 | Marathas and the East India Company, from 1785 |
@@ -22,7 +23,9 @@ label by hand. A polity in several pieces gives `rings` in place of `ring`.
 2. Copy a plate JSON and set `pages`, `seam` (the row where the two pages meet) and `rough` (the pixel
    positions of the 5-degree lines, read off the scan by eye).
 3. `python3 tools/plates/fit.py plate.png <date>.json`: fits the projection. The error should be
-   about 1 px.
+   about 1 px, and the scale (the last number) about 55 px per degree on both pages. If a page is
+   far off, the first reading of its parallels missed the frame: set `rough.columns` to two x
+   positions inside the frame, halfway between meridians (1318 needed this).
 4. Trace each polity's border as a ring of `[lon, lat]` points, reading it off the plate with its
    grid. `check.py` draws a 1-degree grid and the rings over the scan; repeat until they follow
    Joppen's lines.
