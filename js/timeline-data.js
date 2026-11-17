@@ -129,15 +129,22 @@ export const ERAS = [
     change: 'Delhi’s rule spreads south to its widest under Muhammad bin Tughlaq, then breaks into Bengal, Gujarat, Malwa, the Bahmani kingdom and Vijayanagara.',
     dates: ['Vijayanagara founded, 1336', 'Timur sacks Delhi, 1398', 'First battle of Panipat, 1526'],
     lead: 'qutub-minar',
-    map: {
-      title: 'The Sultanate under Iltutmish, 1236', certainty: 'Approximate. Drawn by eye after “India in 1236” in Davies’ atlas.',
-      fills: [['sultanate-1236', 'a', 'Sultanate of Delhi']],
-      labels: [
-        ['Sultanate of Delhi', 26.4, 81.8, 'main'], ['Delhi', 28.61, 77.21, 'city'], ['Yadavas', 19.9, 75.6, 'out'], ['Kakatiyas', 17.9, 79.6, 'out'],
-        ['Hoysalas', 13.1, 76.2, 'out'], ['Cholas', 11.2, 79.2, 'out'], ['Pandyas', 9.5, 78.0, 'out'], ['Gujarat', 22.9, 72.0, 'out'],
-        ['Orissa', 20.6, 85.2, 'out'], ['Kashmir', 34.2, 75.2, 'out'], ['Mongols', 33.6, 67.0, 'out'],
-      ],
-    },
+    maps: [
+      {
+        title: 'The Sultanate under Iltutmish, 1236', certainty: 'Approximate. Drawn by eye after “India in 1236” in Davies’ atlas.',
+        fills: [['sultanate-1236', 'a', 'Sultanate of Delhi']],
+        labels: [
+          ['Sultanate of Delhi', 26.4, 81.8, 'main'], ['Delhi', 28.61, 77.21, 'city'], ['Yadavas', 19.9, 75.6, 'out'], ['Kakatiyas', 17.9, 79.6, 'out'],
+          ['Hoysalas', 13.1, 76.2, 'out'], ['Cholas', 11.2, 79.2, 'out'], ['Pandyas', 9.5, 78.0, 'out'], ['Gujarat', 22.9, 72.0, 'out'],
+          ['Orissa', 20.6, 85.2, 'out'], ['Kashmir', 34.2, 75.2, 'out'], ['Mongols', 33.6, 67.0, 'out'],
+        ],
+      },
+      {
+        from: 1450, plate: '1525', title: 'India in 1525, on the eve of Panipat',
+        certainty: 'Traced from map 14, “India in 1525”, of Joppen’s Historical Atlas of India (1914, public domain). The scan is fitted to the plate’s printed grid and the borders followed on it, to within about 0.2–0.3° (20–30 km). The Lodi sultanate is shown as Joppen draws it, from Kabul to Bihar.',
+        labels: [['Delhi', 28.61, 77.21, 'city'], ['Vijayanagara', 15.33, 76.46, 'city'], ['Nepal', 28.4, 84.2, 'out'], ['Tibet', 31.5, 87.0, 'out'], ['Ceylon', 7.8, 80.7, 'out']],
+      },
+    ],
   },
   {
     id: 'mughal', name: 'Mughals, the Deccan and Vijayanagara', short: 'Mughals', start: 1526, end: 1707, span: '1526–1707',
@@ -161,16 +168,25 @@ export const ERAS = [
     change: 'Mughal power shrinks to Delhi. The Company grows from Bengal to the whole subcontinent through war, treaty and annexation.',
     dates: ['Battle of Plassey, 1757', 'Third battle of Panipat, 1761', 'Fall of Mysore, 1799', 'Punjab annexed, 1849', 'Revolt of 1857'],
     lead: 'trimbakeshwar-temple',
-    map: {
-      title: 'The Company, the Marathas and the Nizam, c. 1805', certainty: 'Approximate. After the treaties of 1799–1805: Mysore partitioned, the Carnatic and Tanjore taken, Awadh’s cession of 1801, Bassein (1802), Deogaon and Surji-Anjangaon (1803); checked against Joppen’s “India in 1805” (1914). The Sikh states are Ranjit Singh’s kingdom west of the Sutlej and the chiefs east of it. Bombay and other small holdings are not drawn.',
-      fills: [['company-1805', 'a', 'East India Company'], ['maratha-1805', 'b', 'Maratha states'], ['hyderabad-1805', 'c', 'The Nizam of Hyderabad'], ['sikh-1805', 'd', 'Sikh states']],
-      labels: [
-        ['East India Company', 24.0, 86.6, 'main'], ['Maratha states', 22.6, 76.4, 'main'], ['Hyderabad', 18.2, 78.4, 'main'], ['Madras Presidency', 11.0, 78.8, 'in'],
-        ['Sikh states', 30.6, 75.6, 'in'], ['Lahore', 31.55, 74.34, 'city-left'], ['Calcutta', 22.57, 88.36, 'city'], ['Delhi', 28.61, 77.21, 'city-left'], ['Pune', 18.52, 73.86, 'city-left'],
-        ['Awadh', 27.0, 81.4, 'out'], ['Mysore', 12.9, 76.8, 'out'], ['Rajput states', 26.6, 73.4, 'out'], ['Sindh', 26.0, 68.4, 'out'],
-        ['Afghans', 33.0, 66.0, 'out'], ['Nepal', 28.8, 82.6, 'out'], ['Travancore', 9.0, 76.9, 'out'], ['Kutch', 23.5, 69.6, 'out'],
-      ],
-    },
+    maps: [
+      {
+        plate: '1751', title: 'India in 1751',
+        certainty: 'Traced from map 23, “India in 1751”, of Joppen’s Historical Atlas of India (1914, public domain), to within about 0.2–0.3°. Joppen colours the Nizam and the Carnatic as the sphere of French influence, and Delhi with Sirhind as what remained of the Mughal empire.',
+        labels: [['Delhi', 28.61, 77.21, 'city'], ['Pune', 18.52, 73.86, 'city-left'], ['Calcutta', 22.57, 88.36, 'city'], ['Madras', 13.08, 80.27, 'city'],
+          ['Pondicherry', 11.93, 79.83, 'city'], ['Nepal', 28.4, 84.2, 'out'], ['Tibet', 31.5, 87.0, 'out'], ['Ceylon', 7.8, 80.7, 'out']],
+      },
+      {
+          from: 1790,
+        title: 'The Company, the Marathas and the Nizam, c. 1805', certainty: 'Approximate. After the treaties of 1799–1805: Mysore partitioned, the Carnatic and Tanjore taken, Awadh’s cession of 1801, Bassein (1802), Deogaon and Surji-Anjangaon (1803); checked against Joppen’s “India in 1805” (1914). The Sikh states are Ranjit Singh’s kingdom west of the Sutlej and the chiefs east of it. Bombay and other small holdings are not drawn.',
+        fills: [['company-1805', 'a', 'East India Company'], ['maratha-1805', 'b', 'Maratha states'], ['hyderabad-1805', 'c', 'The Nizam of Hyderabad'], ['sikh-1805', 'd', 'Sikh states']],
+        labels: [
+          ['East India Company', 24.0, 86.6, 'main'], ['Maratha states', 22.6, 76.4, 'main'], ['Hyderabad', 18.2, 78.4, 'main'], ['Madras Presidency', 11.0, 78.8, 'in'],
+          ['Sikh states', 30.6, 75.6, 'in'], ['Lahore', 31.55, 74.34, 'city-left'], ['Calcutta', 22.57, 88.36, 'city'], ['Delhi', 28.61, 77.21, 'city-left'], ['Pune', 18.52, 73.86, 'city-left'],
+          ['Awadh', 27.0, 81.4, 'out'], ['Mysore', 12.9, 76.8, 'out'], ['Rajput states', 26.6, 73.4, 'out'], ['Sindh', 26.0, 68.4, 'out'],
+          ['Afghans', 33.0, 66.0, 'out'], ['Nepal', 28.8, 82.6, 'out'], ['Travancore', 9.0, 76.9, 'out'], ['Kutch', 23.5, 69.6, 'out'],
+        ],
+      },
+    ],
   },
   {
     id: 'crown', name: 'British Crown rule', short: 'Crown rule', start: 1858, end: 1947, span: '1858–1947',

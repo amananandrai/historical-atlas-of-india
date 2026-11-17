@@ -128,14 +128,16 @@ const mapsOf = (e) => e.maps || (e.map ? [e.map] : []);
 const mapAt = (e, year) => mapsOf(e).reduce((cur, m) => ((m.from ?? e.start) <= year ? m : cur), null);
 const keyG = $('tl-key');
 
-// The provinces and states of 1939 onwards are fetched the first time they are needed.
+// Sets of shapes fetched the first time they are needed: the provinces and states of 1939 onwards
+// (`units`, data/units/) and the snapshots traced from Joppen's plates (`plate`, data/plates/).
 const unitSets = {};
-function unitsOf(name) {
-  if (Array.isArray(unitSets[name])) return unitSets[name];
-  unitSets[name] ??= fetch(`data/units/${name}.json`).then((r) => r.json()).then((d) => {
+const setOf = (map) => (map.units ? `units/${map.units}` : map.plate ? `plates/${map.plate}` : null);
+function unitsOf(path) {
+  if (Array.isArray(unitSets[path])) return unitSets[path];
+  unitSets[path] ??= fetch(`data/${path}.json`).then((r) => r.json()).then((d) => {
     Object.assign(TMAP.shapes, d.shapes);
-    unitSets[name] = d.units;
-    if (shownMap && shownMap.units === name) { const m = shownMap; shownMap = undefined; drawMap(m); }
+    unitSets[path] = d.units;
+    if (shownMap && setOf(shownMap) === path) { const m = shownMap; shownMap = undefined; drawMap(m); }
   });
   return null;
 }
@@ -151,9 +153,9 @@ function drawMap(map) {
   // India's boundary today stays as a dashed reference, unless the map is drawn from it.
   todayPath.style.display = map && (map.units || (map.fills || []).some(([s]) => s === 'india')) ? 'none' : '';
   if (!map) return;
-  // `units` names a set of provinces and states, each with its label point.
-  const units = map.units ? unitsOf(map.units) || [] : [];
-  const fills = [...(map.fills || []), ...units.map(([shape, cls, name, note]) => [shape, cls, note && note !== name ? `${name} (${note})` : name])];
+  // `units` or `plate` names a set of shapes, each with its label point.
+  const set = setOf(map), units = set ? unitsOf(set) || [] : [];
+  const fills = [...(map.fills || []), ...units.map(([shape, cls, name, note]) => [shape, cls, note && note !== name && note !== 'main' ? `${name} (${note})` : name])];
   for (const [shape, cls, name] of fills) {
     const g = el('g', { class: `polity ${cls}` });
     g.appendChild(el('path', { class: 'tint', d: TMAP.shapes[shape] }));
@@ -162,7 +164,7 @@ function drawMap(map) {
     fillsG.appendChild(g);
   }
   const unitLabels = units.filter((u) => u.length > 4 && !(map.unlabelled || []).includes(u[2]))
-    .map(([, cls, name, , lat, lng]) => [name, lat, lng, (map.unitKinds || {})[cls] || 'unit']);
+    .map(([, cls, name, note, lat, lng]) => [name, lat, lng, map.plate ? (note === 'main' ? 'main' : 'in') : (map.unitKinds || {})[cls] || 'unit']);
   for (const [name, lat, lng, kind] of [...unitLabels, ...(map.labels || [])]) {
     const [x, y] = project(lat, lng);
     if (kind.startsWith('city')) {
