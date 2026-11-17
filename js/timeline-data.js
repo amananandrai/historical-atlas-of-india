@@ -112,16 +112,24 @@ export const ERAS = [
     change: 'No single empire. Three powers contest Kannauj, the Cholas hold the south and Sri Lanka, and Ghaznavid and Ghurid armies enter from the north-west.',
     dates: ['Harsha’s reign, 606–647', 'Sulaiman the merchant describes the three kingdoms, 851', 'Mahmud of Ghazni’s raids, 1000–1027', 'Second battle of Tarain, 1192'],
     lead: 'brihadeeswara-temple',
-    map: {
-      title: 'The struggle for Kannauj, c. 850', certainty: 'Approximate. The three powers that the Arab merchant Sulaiman described in 851: the Pratiharas under Mihira Bhoja (from the Himalayan foothills to the Narmada; inscriptions at Pehowa, Dausa and Gwalior; Saurashtra’s grants date from his son’s reign), the Palas under Devapala and the Rashtrakutas under Amoghavarsha.',
-      fills: [['pratihara-850', 'a', 'Gurjara-Pratiharas'], ['pala-850', 'b', 'Palas'], ['rashtrakuta-850', 'c', 'Rashtrakutas']],
-      labels: [
-        ['Pratiharas', 28.2, 74.6, 'main'], ['Palas', 24.4, 87.6, 'main'], ['Rashtrakutas', 18.6, 76.2, 'main'],
-        ['Kannauj', 27.05, 79.92, 'city'], ['Manyakheta', 17.2, 77.13, 'city-left'], ['Kashmir', 34.2, 75.0, 'out'], ['Shahis', 34.4, 70.4, 'out'],
-        ['Arab Sindh', 26.0, 68.4, 'out'], ['Kamarupa', 26.3, 92.0, 'out'], ['Eastern Chalukyas', 18.0, 82.4, 'out'],
-        ['Pallavas', 12.7, 79.4, 'out'], ['Pandyas', 9.5, 78.0, 'out'], ['Cheras', 10.3, 76.3, 'out'], ['Simhala', 7.8, 80.7, 'out'],
-      ],
-    },
+    maps: [
+      {
+        title: 'The struggle for Kannauj, c. 850', certainty: 'Approximate. The three powers that the Arab merchant Sulaiman described in 851: the Pratiharas under Mihira Bhoja (from the Himalayan foothills to the Narmada; inscriptions at Pehowa, Dausa and Gwalior; Saurashtra’s grants date from his son’s reign), the Palas under Devapala and the Rashtrakutas under Amoghavarsha.',
+        fills: [['pratihara-850', 'a', 'Gurjara-Pratiharas'], ['pala-850', 'b', 'Palas'], ['rashtrakuta-850', 'c', 'Rashtrakutas']],
+        labels: [
+          ['Pratiharas', 28.2, 74.6, 'main'], ['Palas', 24.4, 87.6, 'main'], ['Rashtrakutas', 18.6, 76.2, 'main'],
+          ['Kannauj', 27.05, 79.92, 'city'], ['Manyakheta', 17.2, 77.13, 'city-left'], ['Kashmir', 34.2, 75.0, 'out'], ['Shahis', 34.4, 70.4, 'out'],
+          ['Arab Sindh', 26.0, 68.4, 'out'], ['Kamarupa', 26.3, 92.0, 'out'], ['Eastern Chalukyas', 18.0, 82.4, 'out'],
+          ['Pallavas', 12.7, 79.4, 'out'], ['Pandyas', 9.5, 78.0, 'out'], ['Cheras', 10.3, 76.3, 'out'], ['Simhala', 7.8, 80.7, 'out'],
+        ],
+      },
+      {
+        from: 990, plate: '1022', title: 'India in 1022, in the time of Mahmud of Ghazni',
+        certainty: 'Traced from map 10, “India in 1022”, of Joppen’s Historical Atlas of India (1914, public domain), to within about 0.2–0.3°. Joppen colours only the Ghaznavids and Kashmir; the kingdoms of the rest are told apart by his border lines, and the Rajput clans (Tomaras, Chauhans, Rathors, Sumeras) are drawn as one. The Ghaznavid empire ran far west of the plate.',
+        labels: [['Ghazni', 33.55, 68.42, 'city'], ['Lahore', 31.55, 74.34, 'city'], ['Kannauj', 27.05, 79.92, 'city'], ['Thanjavur', 10.79, 79.14, 'city'],
+          ['Kalyani', 17.87, 76.95, 'city-left'], ['Somnath', 20.89, 70.4, 'city-left'], ['Tibet', 31.5, 87.0, 'out'], ['Ceylon', 7.8, 80.7, 'out']],
+      },
+    ],
   },
   {
     id: 'sultanate', name: 'Delhi Sultanate', short: 'Delhi Sultanate', start: 1206, end: 1526, span: '1206–1526',
@@ -203,6 +211,18 @@ export const ERAS = [
           ['Awadh', 27.0, 81.4, 'out'], ['Mysore', 12.9, 76.8, 'out'], ['Rajput states', 26.6, 73.4, 'out'], ['Sindh', 26.0, 68.4, 'out'],
           ['Afghans', 33.0, 66.0, 'out'], ['Nepal', 28.8, 82.6, 'out'], ['Travancore', 9.0, 76.9, 'out'], ['Kutch', 23.5, 69.6, 'out'],
         ],
+      },
+      {
+        from: 1818, plate: '1823', title: 'India in 1823, after the Maratha wars',
+        certainty: 'Traced from map 29, “India in 1823”, of Joppen’s Historical Atlas of India (1914, public domain), to within about 0.2–0.3°. After 1818 the Peshwa’s lands are British, and the Rajputs, Sindhia, Holkar, the Nizam and the rest are protected states. Ranjit Singh holds the Punjab, Peshawar and Kashmir; Sindh and Bahawalpur are independent. Small states and enclaves are merged with their neighbours.',
+        labels: [['Delhi', 28.61, 77.21, 'city'], ['Lahore', 31.55, 74.34, 'city-left'], ['Calcutta', 22.57, 88.36, 'city'], ['Bombay', 18.94, 72.84, 'city-left'],
+          ['Madras', 13.08, 80.27, 'city'], ['Afghans', 33.0, 67.0, 'out'], ['Tibet', 31.5, 87.0, 'out'], ['Ceylon', 7.8, 80.7, 'out']],
+      },
+      {
+        from: 1849, plate: '1856', title: 'India in 1856, on the eve of the revolt',
+        certainty: 'Traced from map 31, “India in 1856”, of Joppen’s Historical Atlas of India (1914, public domain), to within about 0.2–0.3°. Sindh, the Punjab, Nagpur, Jhansi, Satara and Oudh have been annexed; Kashmir, the Rajputs, central India, the Nizam, Mysore and Travancore remain protected states. Small states and enclaves are merged with their neighbours.',
+        labels: [['Delhi', 28.61, 77.21, 'city'], ['Lucknow', 26.85, 80.95, 'city'], ['Calcutta', 22.57, 88.36, 'city'], ['Bombay', 18.94, 72.84, 'city-left'],
+          ['Madras', 13.08, 80.27, 'city'], ['Afghans', 33.0, 67.0, 'out'], ['Tibet', 31.5, 87.0, 'out'], ['Ceylon', 7.8, 80.7, 'out']],
       },
     ],
   },
