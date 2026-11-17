@@ -25,8 +25,18 @@ Every monument pin opens that monument's 3D model on the
 - **The Republic in three maps**, which change as the slider moves: Republic Day 1950 (Part A, B,
   C and D states), after the States Reorganisation Act of 1956, and today's 28 states and 8 union
   territories.
-- **A pin for every monument standing by the chosen year.**
-- **Direct links** by year, such as `#1605`.
+- **A pin for every monument standing by the chosen year**, with its style and the ruler it was built under.
+- **Rulers and dynasties:** 59 dynasties and 125 rulers, each with a card (reign, capitals, the
+  monuments built in their time, their battles). The era card lists who ruled in the chosen year,
+  region by region, and a **dynasty chart** shows every region's dynasties across the era.
+- **Architecture styles:** 27 styles in 9 families, from stupas and Nagara temples to Mughal and
+  Indo-Saracenic, each with what to look for and its monuments; opening a style shows only its
+  monuments on the map. A **glossary** of 26 building parts is illustrated with the monuments
+  site's 3D models.
+- **Map layers** to switch on and off: borders, monuments, capitals and 24 battles.
+- **Direct links** to everything: a year (`#1605`), a ruler (`#ruler/akbar`), a dynasty
+  (`#dynasty/chola`), a style (`#style/mughal`), a battle (`#battle/plassey`), and the `#styles`,
+  `#glossary` and `#dynasties` views.
 
 ## How it is built
 
@@ -36,11 +46,14 @@ A static site with no build step: `index.html`, `css/` and ES modules in `js/`.
 | --- | --- |
 | `js/timeline-data.js` | The eras: their text, dates and what each map draws |
 | `js/timeline.js` | The page: map, slider, era card, pins |
-| `js/timeline-map.js` | Generated: land, rivers, every border and label point |
+| `js/atlas/dynasties.js`, `styles.js`, `battles.js` | Rulers and dynasties, architecture styles and the glossary, battles |
+| `js/timeline-map.js` | Generated: land, rivers, every era's borders |
+| `data/units/*.json` | Generated: the provinces and states of 1939, 1947, 1950, 1956 and today, fetched when needed |
 | `js/monuments.js` | Generated: the monuments pinned on the map |
 | `css/base.css`, `css/timeline.css` | The shared look (matching the monuments site) and the page layout |
 
-`js/timeline-map.js` and `js/monuments.js` are made by the scripts in [`tools/`](tools/README.md).
+The generated files are made by the scripts in [`tools/`](tools/README.md); `node tools/check-atlas.mjs`
+checks the dynasties, styles and battles (dates, places and links).
 
 ## Sources
 
