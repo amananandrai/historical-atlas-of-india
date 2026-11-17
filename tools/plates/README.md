@@ -8,12 +8,13 @@ Each `<date>.json` holds one plate: where it is in the scan (`pages`), how its p
 longitude and latitude (`rough`, `seam`, `conic`), and its polities as rings of `[lon, lat]`, in order.
 An earlier polity keeps its border and a later one is cut by it, so a ring can be drawn wide where it
 meets a neighbour already traced. `main` marks the main power (always coloured `a`) and `at` places a
-label by hand.
+label by hand. A polity in several pieces gives `rings` in place of `ring`.
 
 | Plate | Joppen's map | Era on the atlas |
 | --- | --- | --- |
 | `1525.json` | 14, India in 1525 | Delhi Sultanate, from 1450 |
 | `1751.json` | 23, India in 1751 | Marathas and the East India Company, from 1707 |
+| `1795.json` | 27, India in 1795 | Marathas and the East India Company, from 1785 |
 
 ## Tracing a plate
 

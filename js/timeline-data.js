@@ -176,7 +176,13 @@ export const ERAS = [
           ['Pondicherry', 11.93, 79.83, 'city'], ['Nepal', 28.4, 84.2, 'out'], ['Tibet', 31.5, 87.0, 'out'], ['Ceylon', 7.8, 80.7, 'out']],
       },
       {
-          from: 1790,
+        from: 1785, plate: '1795', title: 'India in 1795',
+        certainty: 'Traced from map 27, “India in 1795”, of Joppen’s Historical Atlas of India (1914, public domain), to within about 0.2–0.3°. The Maratha Confederacy at its widest, the last year its chiefs fought together (at Kharda); Joppen colours the Rajputs, tributary to Sindhia, with it. The Company holds Bengal, Bihar, Benares, the Northern Circars, Malabar and lands round Madras; Oudh, the Nizam and the Carnatic are under its protection.',
+        labels: [['Delhi', 28.61, 77.21, 'city'], ['Pune', 18.52, 73.86, 'city-left'], ['Calcutta', 22.57, 88.36, 'city'], ['Madras', 13.08, 80.27, 'city'],
+          ['Seringapatam', 12.42, 76.68, 'city-left'], ['Tibet', 31.5, 87.0, 'out'], ['Ceylon', 7.8, 80.7, 'out']],
+      },
+      {
+        from: 1800,
         title: 'The Company, the Marathas and the Nizam, c. 1805', certainty: 'Approximate. After the treaties of 1799–1805: Mysore partitioned, the Carnatic and Tanjore taken, Awadh’s cession of 1801, Bassein (1802), Deogaon and Surji-Anjangaon (1803); checked against Joppen’s “India in 1805” (1914). The Sikh states are Ranjit Singh’s kingdom west of the Sutlej and the chiefs east of it. Bombay and other small holdings are not drawn.',
         fills: [['company-1805', 'a', 'East India Company'], ['maratha-1805', 'b', 'Maratha states'], ['hyderabad-1805', 'c', 'The Nizam of Hyderabad'], ['sikh-1805', 'd', 'Sikh states']],
         labels: [
