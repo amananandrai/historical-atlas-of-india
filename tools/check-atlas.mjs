@@ -1,8 +1,9 @@
-// Checks the atlas's data: dynasties and rulers, styles and glossary, battles. Exits 1 on a problem.
+// Checks the atlas's data: dynasties and rulers, styles and glossary, battles, schools of art. Exits 1 on a problem.
 //   node tools/check-atlas.mjs
 import { DYNASTIES, LANES } from '../js/atlas/dynasties.js';
 import { STYLES, FAMILIES, TERMS } from '../js/atlas/styles.js';
 import { BATTLES } from '../js/atlas/battles.js';
+import { ART, ART_KINDS } from '../js/atlas/art.js';
 import { SOURCES } from '../js/atlas/sources.js';
 import { MONUMENTS } from '../js/monuments.js';
 
@@ -55,19 +56,39 @@ for (const b of BATTLES) {
   for (const d of b.dynasties || []) if (!dynasties.has(d)) bad(`battle ${b.id}: unknown dynasty ${d}`);
 }
 
+// Schools of art: dates, centres, links, and pictures only under an open licence.
+const kinds = new Set(ART_KINDS.map((k) => k.id));
+const styleIds = new Set(STYLES.map((x) => x.id));
+const OPEN = ['CC0', 'Public domain'];
+for (const a of ART) {
+  unique('art', a.id);
+  if (!kinds.has(a.kind)) bad(`art ${a.id}: unknown kind ${a.kind}`);
+  if (!(a.start < a.end) || a.end > year) bad(`art ${a.id}: span ${a.start}–${a.end}`);
+  if (!a.centres.length) bad(`art ${a.id}: no centres`);
+  for (const [name, lat, lng] of a.centres) if (!inFrame(lat, lng)) bad(`art ${a.id}: centre ${name} out of the map`);
+  if (!a.works.length) bad(`art ${a.id}: no works`);
+  for (const w of a.works) {
+    if (!w.name || !w.date || !w.where) bad(`art ${a.id}: a work lacks its name, date or place`);
+    if (w.img && !(OPEN.includes(w.licence) && w.credit && /^https:\/\//.test(w.img))) bad(`art ${a.id}: picture of “${w.name}” needs an https link, a credit and a CC0 or public-domain licence`);
+  }
+  for (const d of a.dynasties || []) if (!dynasties.has(d)) bad(`art ${a.id}: unknown dynasty ${d}`);
+  for (const s of a.styles || []) if (!styleIds.has(s)) bad(`art ${a.id}: unknown style ${s}`);
+  for (const m of a.monuments || []) if (!monuments.has(m)) bad(`art ${a.id}: no monument ${m}`);
+}
+
 // Every "seen at" link of the sources page goes somewhere real.
-const known = { ruler: new Set(DYNASTIES.flatMap((d) => d.rulers.map((r) => r.id))), dynasty: dynasties, style: new Set(STYLES.map((x) => x.id)), battle: new Set(BATTLES.map((x) => x.id)) };
+const known = { ruler: new Set(DYNASTIES.flatMap((d) => d.rulers.map((r) => r.id))), dynasty: dynasties, style: new Set(STYLES.map((x) => x.id)), battle: new Set(BATTLES.map((x) => x.id)), art: new Set(ART.map((x) => x.id)) };
 let sourceCount = 0;
 for (const g of SOURCES) for (const it of g.items) {
   sourceCount++;
   for (const [h] of it.at || []) {
     const [kind, id] = h.split('/');
-    if (id ? !(known[kind] && known[kind].has(id)) : !(/^-?\d+$/.test(kind) || ['glossary', 'styles', 'sources', 'dynasties'].includes(kind))) bad(`source ${it.id}: bad link #${h}`);
+    if (id ? !(known[kind] && known[kind].has(id)) : !(/^-?\d+$/.test(kind) || ['glossary', 'styles', 'art', 'sources', 'dynasties'].includes(kind))) bad(`source ${it.id}: bad link #${h}`);
   }
 }
 
 const rulers = DYNASTIES.reduce((n, d) => n + d.rulers.length, 0);
-console.log(`${DYNASTIES.length} dynasties, ${rulers} rulers, ${STYLES.length} styles, ${TERMS.length} terms, ${BATTLES.length} battles, ${sourceCount} sources`);
+console.log(`${DYNASTIES.length} dynasties, ${rulers} rulers, ${STYLES.length} styles, ${TERMS.length} terms, ${BATTLES.length} battles, ${ART.length} schools of art, ${sourceCount} sources`);
 if (problems.length) {
   console.log(problems.map((p) => `  ${p}`).join('\n'));
   process.exit(1);

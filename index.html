@@ -33,6 +33,7 @@
       <button class="btn" id="nav-chart" type="button" aria-pressed="false" aria-controls="tl-chart">Dynasties</button>
       <a class="btn" href="#styles">Styles</a>
       <a class="btn" href="#glossary">Glossary</a>
+      <a class="btn" href="#art">Art</a>
       <a class="btn" href="#sources">Sources</a>
       <a class="btn btn-3d" href="https://monuments-of-india-nu.vercel.app">Monuments in 3D</a>
     </nav>
@@ -59,6 +60,11 @@
       <p class="filter" id="tl-filter" hidden></p>
       <label><input type="checkbox" data-layer="capitals"> <span class="sym-capital"></span>Capitals</label>
       <label><input type="checkbox" data-layer="battles" checked> <span class="sym-battle"></span>Battles</label>
+      <label><input type="checkbox" data-layer="art"> <span class="sym-art"></span>Art</label>
+      <ul class="types">
+        <li><span class="sym-art"></span>Sculpture</li>
+        <li><span class="sym-art open"></span>Painting</li>
+      </ul>
       <p class="today-note"><span class="swatch-today"></span>India’s boundary today</p>
     </details>
     <div class="maptip" id="tl-tip" role="tooltip" hidden></div>
@@ -94,6 +100,10 @@
     <div id="c-battles-wrap">
       <h3>Battles of the era</h3>
       <ul class="built" id="c-battles"></ul>
+    </div>
+    <div id="c-art-wrap">
+      <h3>Art of the era</h3>
+      <ul class="built" id="c-art"></ul>
     </div>
     </div>
   </aside>

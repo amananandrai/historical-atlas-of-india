@@ -1,9 +1,10 @@
 // The atlas's search: one index of rulers, dynasties, capitals, styles, building parts, battles,
-// monuments and eras, each with the address it opens. Years are understood too: "1605", "250 BCE",
+// schools of art and their works, monuments and eras, each with the address it opens. Years are understood too: "1605", "250 BCE",
 // "250 bc", "-250".
 import { DYNASTIES, RULERS } from './dynasties.js';
 import { FAMILIES, STYLES, TERMS } from './styles.js';
 import { BATTLES } from './battles.js';
+import { ART } from './art.js';
 
 // Lower case, without accents or punctuation, so "Rajendra" finds "Rājendra" and "Asoka" finds "Ashoka".
 export const fold = (s) => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
@@ -31,6 +32,11 @@ export function buildIndex({ monuments, eras, formatYear, spanText }) {
   for (const f of FAMILIES) add('Styles', f.name, STYLES.filter((s) => s.family === f.id).map((s) => s.name).join(', '), '#styles');
   for (const t of TERMS) add('Glossary', t.name, t.def, `#term/${t.id}`);
   for (const b of BATTLES) add('Battle', b.name, `${b.c ? 'c. ' : ''}${formatYear(b.year)} · ${b.sides}`, `#battle/${b.id}`);
+  for (const a of ART) {
+    add('Art', a.name, `${a.kind === 'sculpture' ? 'Sculpture' : 'Painting'}, ${spanText(a.start, a.end, a.c)} · ${a.region}`, `#art/${a.id}`, `${a.kind} ${a.centres.map(([n]) => n).join(' ')}`);
+    for (const w of a.works) add('Artwork', w.name, `${a.name} · ${w.date} · ${w.where}`, `#art/${a.id}`);
+  }
+  add('Art', 'Sculpture and painting', `${ART.length} schools of Indian art`, '#art', 'art painting sculpture bronze');
   for (const m of monuments) add('Monument', m.name, `${m.place} · ${m.built}`, `#monument/${m.id}`, m.place);
   for (const e of eras) add('Era', e.name, e.span, `#${Math.min(e.end, e.start + Math.round((e.end - e.start) * 0.6))}`, e.short);
   return items;
