@@ -1,10 +1,12 @@
 // The atlas's search: one index of rulers, dynasties, capitals, styles, building parts, battles,
-// schools of art and their works, monuments and eras, each with the address it opens. Years are understood too: "1605", "250 BCE",
+// schools of art and their works, travellers, trade routes, tours, monuments and eras, each with the address it opens. Years are understood too: "1605", "250 BCE",
 // "250 bc", "-250".
 import { DYNASTIES, RULERS } from './dynasties.js';
 import { FAMILIES, STYLES, TERMS } from './styles.js';
 import { BATTLES } from './battles.js';
 import { ART } from './art.js';
+import { TRAVELLERS, ROUTES } from './routes.js';
+import { TOURS } from './tours.js';
 
 // Lower case, without accents or punctuation, so "Rajendra" finds "Rājendra" and "Asoka" finds "Ashoka".
 export const fold = (s) => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
@@ -37,6 +39,10 @@ export function buildIndex({ monuments, eras, formatYear, spanText }) {
     for (const w of a.works) add('Artwork', w.name, `${a.name} · ${w.date} · ${w.where}`, `#art/${a.id}`);
   }
   add('Art', 'Sculpture and painting', `${ART.length} schools of Indian art`, '#art', 'art painting sculpture bronze');
+  for (const t of TRAVELLERS) add('Traveller', t.name, `${t.from}, in India ${spanText(t.start, t.end, t.c)}`, `#traveller/${t.id}`, `${t.account} ${t.stops.map(([n]) => n).join(' ')}`);
+  for (const r of ROUTES) add('Trade route', r.name, `${r.kind === 'sea' ? 'By sea' : 'By land'}, ${spanText(r.start, r.end, r.c)}`, `#route/${r.id}`, `trade ${r.goods} ${r.paths.flat().map(([n]) => n).join(' ')}`);
+  for (const t of TOURS) add('Tour', t.name, t.summary, `#tour/${t.id}/1`, 'tour');
+  add('Tours', 'Tours and journeys', 'Guided tours, travellers and trade routes', '#tours', 'tour travellers trade routes');
   for (const m of monuments) add('Monument', m.name, `${m.place} · ${m.built}`, `#monument/${m.id}`, m.place);
   for (const e of eras) add('Era', e.name, e.span, `#${Math.min(e.end, e.start + Math.round((e.end - e.start) * 0.6))}`, e.short);
   return items;

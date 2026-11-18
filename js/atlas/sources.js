@@ -67,6 +67,20 @@ export const SOURCES = [
     ],
   },
   {
+    group: 'Travellers and trade',
+    note: 'Each journey follows the places its traveller wrote about, in the order of the account as far as it is known; a line between two places is not the road taken. The trade routes join the cities and ports named in these sources.',
+    items: [
+      { id: 'megasthenes', cite: 'J. W. McCrindle, Ancient India as Described by Megasthenes and Arrian. Trübner, 1877.', terms: 'Public domain', use: 'Megasthenes at Pataliputra.', at: [['traveller/megasthenes', 'Megasthenes']] },
+      { id: 'legge', cite: 'James Legge (trans.), A Record of Buddhistic Kingdoms: Being an Account by the Chinese Monk Fa-Hien of his Travels in India and Ceylon. Clarendon Press, 1886.', terms: 'Public domain', use: 'Faxian’s journey.', at: [['traveller/faxian', 'Faxian']] },
+      { id: 'beal', cite: 'Samuel Beal (trans.), Si-Yu-Ki: Buddhist Records of the Western World. Trübner, 1884.', terms: 'Public domain', use: 'Xuanzang’s journey.', at: [['traveller/xuanzang', 'Xuanzang']] },
+      { id: 'sachau', cite: 'Edward C. Sachau (trans.), Alberuni’s India. Trübner, 1888.', terms: 'Public domain', use: 'Al-Biruni in the Punjab.', at: [['traveller/al-biruni', 'Al-Biruni']] },
+      { id: 'gibb', cite: 'H. A. R. Gibb and C. F. Beckingham (trans.), The Travels of Ibn Battuta, vols. 3–4. Hakluyt Society, 1971–94.', use: 'Ibn Battuta in India.', at: [['traveller/ibn-battuta', 'Ibn Battuta']] },
+      { id: 'major', cite: 'R. H. Major (ed.), India in the Fifteenth Century. Hakluyt Society, 1857; with Robert Sewell, A Forgotten Empire (Vijayanagar). Swan Sonnenschein, 1900.', terms: 'Public domain', use: 'Abdur Razzaq and Domingo Paes at Vijayanagara.', at: [['traveller/abdur-razzaq', 'Abdur Razzaq'], ['traveller/domingo-paes', 'Domingo Paes']] },
+      { id: 'roe-bernier', cite: 'William Foster (ed.), The Embassy of Sir Thomas Roe to the Court of the Great Mogul. Hakluyt Society, 1899; Archibald Constable (trans.), Travels in the Mogul Empire by François Bernier. Constable, 1891.', terms: 'Public domain', use: 'Roe and Bernier at the Mughal court.', at: [['traveller/thomas-roe', 'Thomas Roe'], ['traveller/bernier', 'Bernier']] },
+      { id: 'periplus', cite: 'Lionel Casson (trans.), The Periplus Maris Erythraei. Princeton University Press, 1989.', use: 'The monsoon route to Rome and its ports.', at: [['route/monsoon-rome', 'The monsoon route']] },
+    ],
+  },
+  {
     group: 'Monuments',
     items: [
       {

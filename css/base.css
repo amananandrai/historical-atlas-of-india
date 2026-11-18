@@ -21,6 +21,8 @@
   --t-fort: #b02a5c;
   --t-memorial: #2d6aa6;
   --t-civic: #2c8452;
+  --route: #7a5a2b;
+  --journey: #6d3fa0;
   --pin-ring: #ffffff;
   --font-display: "Rozha One", "Georgia", serif;
   --font-body: "Hind", "Segoe UI", system-ui, sans-serif;
@@ -47,6 +49,10 @@
     --t-fort: #ec6b97;
     --t-memorial: #66a8e6;
     --t-civic: #55c98f;
+  --route: #d9b77a;
+  --journey: #c5a3f0;
+    --route: #d9b77a;
+    --journey: #c5a3f0;
     --pin-ring: #10121d;
     color-scheme: dark;
   }
