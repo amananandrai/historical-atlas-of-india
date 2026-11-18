@@ -1,14 +1,16 @@
 // The atlas page (index.html): a map of the subcontinent that changes with a year slider.
 // Each era shows its borders, a short history, the dynasties ruling in the chosen year, its battles,
-// and a pin for every monument standing by that year (a pin opens the monument's 3D model on the
-// monuments site). Rulers, dynasties, styles and battles open in the side card, each at its own
-// address: #ruler/akbar, #dynasty/chola, #style/mughal, #battle/plassey, #styles, #glossary.
+// its schools of art, and a pin for every monument standing by that year (a pin opens the monument's
+// 3D model on the monuments site). Rulers, dynasties, styles, battles and schools of art open in the
+// side card, each at its own address: #ruler/akbar, #dynasty/chola, #style/mughal, #battle/plassey,
+// #art/pahari, #styles, #glossary, #art.
 import { MONUMENTS, MONUMENTS_SITE } from './monuments.js';
 import { ERAS, formatYear } from './timeline-data.js';
 import { TMAP, project } from './timeline-map.js';
 import { DYNASTIES, LANES, RULERS, reigningAt, capitalsAt } from './atlas/dynasties.js';
 import { FAMILIES, STYLES, TERMS, styleOf } from './atlas/styles.js';
 import { BATTLES } from './atlas/battles.js';
+import { ART, ART_KINDS, artOf, artAt } from './atlas/art.js';
 import { SOURCES, NOT_YET, ISSUES } from './atlas/sources.js';
 import { buildIndex, search, parseYear } from './atlas/search.js';
 
@@ -42,6 +44,7 @@ const rulerById = new Map(RULERS.map((r) => [r.id, r]));
 const styleById = new Map(STYLES.map((s) => [s.id, s]));
 const termById = new Map(TERMS.map((t) => [t.id, t]));
 const battleById = new Map(BATTLES.map((b) => [b.id, b]));
+const artById = new Map(ART.map((a) => [a.id, a]));
 // Who built each monument: the ruler in whose reign it rose, or else the dynasty.
 const builder = new Map();
 for (const d of DYNASTIES) {
@@ -69,7 +72,7 @@ const posOf = (year) => {
 };
 
 /* ---------- layers ---------- */
-const layers = { borders: true, monuments: true, capitals: false, battles: true };
+const layers = { borders: true, monuments: true, capitals: false, battles: true, art: false };
 try { Object.assign(layers, JSON.parse(localStorage.getItem('atlas-layers') || '{}')); } catch (e) { /* private window */ }
 let styleFilter = null;          // a style id: only its monuments are pinned
 
@@ -89,9 +92,10 @@ svg.innerHTML = `
   <path class="today" d="${TMAP.indiaToday}"><title>India’s boundary today</title></path>
   <g id="tl-labels"></g>
   <g id="tl-capitals"></g>
+  <g id="tl-art"></g>
   <g id="tl-battles"></g>
   <g id="tl-pins"></g>`;
-const fillsG = $('tl-fills'), labelsG = $('tl-labels'), pinsG = $('tl-pins'), capitalsG = $('tl-capitals'), battlesG = $('tl-battles');
+const fillsG = $('tl-fills'), labelsG = $('tl-labels'), pinsG = $('tl-pins'), capitalsG = $('tl-capitals'), battlesG = $('tl-battles'), artG = $('tl-art');
 const todayPath = svg.querySelector('.today');
 const tip = $('tl-tip');
 
@@ -242,6 +246,25 @@ function drawBattles(year, era, focus) {
   }
 }
 
+// A diamond at each centre of the schools of art at work in the chosen year: filled for sculpture,
+// open for painting. A centre shared by two schools gets one mark per school, side by side.
+function drawArt(year, focus) {
+  artG.replaceChildren();
+  if (!layers.art) return;
+  const used = new Map();
+  for (const s of artAt(year)) {
+    for (const [name, lat, lng] of s.centres) {
+      const key = `${lat},${lng}`, n = used.get(key) || 0;
+      used.set(key, n + 1);
+      const [px, py] = project(lat, lng), x = px + n * 9, y = py;
+      const a = el('a', { href: `#art/${s.id}`, class: `art k-${s.kind}${s.id === focus ? ' focus' : ''}`, 'aria-label': `${name}: ${s.name} ${s.kind}` });
+      a.appendChild(el('path', { d: `M${x} ${y - 5.5}L${x + 5.5} ${y}L${x} ${y + 5.5}L${x - 5.5} ${y}Z` }));
+      withTip(a, () => `<strong>${esc(s.name)}</strong><span>${esc(ART_KINDS.find((k) => k.id === s.kind).name)} · ${esc(name)}</span><span>${esc(spanText(s.start, s.end, s.c))}</span><span>Open the school</span>`);
+      artG.appendChild(a);
+    }
+  }
+}
+
 /* ---------- the dynasty chart ---------- */
 // Lanes by region across the era's span (at least 150 years), each dynasty a bar; the line is the year.
 const chart = $('tl-chart'), chartSvg = $('chart-svg'), navChart = $('nav-chart');
@@ -300,6 +323,9 @@ function setChart(open) {
 navChart.addEventListener('click', () => setChart(!chartOpen));
 
 /* ---------- the era card ---------- */
+const kindName = (k) => (k === 'sculpture' ? 'Sculpture' : 'Painting');
+const artItem = (a, kind = true) => `<li><a href="#art/${a.id}">${esc(a.name)}</a> <span>${kind ? `${kindName(a.kind)} · ` : ''}${esc(spanText(a.start, a.end, a.c))}</span></li>`;
+const artList = (as, kind = true) => `<ul class="built">${as.map((a) => artItem(a, kind)).join('')}</ul>`;
 const thumb = (m) => `<a class="thumb" href="${MONUMENTS_SITE}/#${m.id}"><img src="${MONUMENTS_SITE}/assets/views/${m.id}.png" alt="" width="800" height="450" loading="lazy"><span><strong>${esc(m.name)}</strong> ${esc(m.built)}</span></a>`;
 let cardEra = -1;
 function drawCard(i) {
@@ -328,6 +354,9 @@ function drawCard(i) {
   const battles = BATTLES.filter((b) => b.year >= e.start && b.year <= e.end);
   $('c-battles-wrap').hidden = !battles.length;
   $('c-battles').innerHTML = battles.map((b) => `<li><a href="#battle/${b.id}">${esc(b.name)}</a> <span>${b.c ? 'c. ' : ''}${esc(formatYear(b.year))}</span></li>`).join('');
+  const art = ART.filter((a) => a.start < e.end && a.end >= e.start).sort((a, b) => a.start - b.start);
+  $('c-art-wrap').hidden = !art.length;
+  $('c-art').innerHTML = art.map((a) => artItem(a)).join('');
   $('tl-card').scrollTop = 0;
 }
 
@@ -387,7 +416,8 @@ const CARDS = {
       <h3>Capital${d.capitals.length > 1 ? 's' : ''}</h3><p>${capitalsText(d)}</p>
       <h3>Rulers</h3><ul class="built">${d.rulers.map((r) => `<li><a href="#ruler/${r.id}">${esc(r.name)}</a> <span>${esc(spanText(r.start, r.end, r.c))}</span></li>`).join('')}</ul>
       ${built.length ? `<h3>Monuments of the dynasty</h3>${builtList(built)}` : ''}
-      ${battles.length ? `<h3>Battles</h3><ul class="built">${battles.map((b) => `<li><a href="#battle/${b.id}">${esc(b.name)}</a> <span>${esc(formatYear(b.year))}</span></li>`).join('')}</ul>` : ''}`;
+      ${battles.length ? `<h3>Battles</h3><ul class="built">${battles.map((b) => `<li><a href="#battle/${b.id}">${esc(b.name)}</a> <span>${esc(formatYear(b.year))}</span></li>`).join('')}</ul>` : ''}
+      ${artOf('dynasties', d.id).length ? `<h3>Art under the ${esc(d.name)}</h3>${artList(artOf('dynasties', d.id))}` : ''}`;
   },
   battle(b) {
     return `${back()}<p class="eyebrow">Battle</p>
@@ -405,7 +435,24 @@ const CARDS = {
       <p class="filter-note">The map shows only this style’s monuments. <button type="button" class="linkish" data-clear-style>Show all</button></p>
       ${s.terms.length ? `<h3>What to look for</h3>${termGrid(s.terms.map((t) => termById.get(t)))}` : ''}
       <h3>Monuments (${s.monuments.length})</h3>${builtList(s.monuments)}
+      ${artOf('styles', s.id).length ? `<h3>Sculpture and painting of the same world</h3>${artList(artOf('styles', s.id))}` : ''}
       ${kin.length ? `<h3>Related styles</h3><p>${kin.map((o) => `<a href="#style/${o.id}">${esc(o.name)}</a>`).join(', ')}</p>` : ''}`;
+  },
+  art(a) {
+    const kind = ART_KINDS.find((k) => k.id === a.kind);
+    const kin = ART.filter((o) => o !== a && o.start < a.end && o.end > a.start).sort((p, q) => p.start - q.start);
+    const work = (w) => `<li class="work">${w.img ? `<figure><img src="${esc(w.img)}" alt="${esc(w.name)}" loading="lazy"><figcaption>${esc(w.credit)} · ${esc(w.licence)}</figcaption></figure>` : ''}
+      <p><strong>${esc(w.name)}</strong> <span class="muted">${esc(w.date)}</span></p><p class="muted">${esc(w.where)}</p></li>`;
+    return `${back()}<p class="eyebrow">Art · ${esc(kind.name)}</p>
+      <h2>${esc(a.name)}</h2><p class="span">${esc(spanText(a.start, a.end, a.c))}</p>
+      <p>${esc(a.summary)}</p><p class="muted">${esc(a.region)}</p>
+      <h3>What to look for</h3><p>${esc(a.look)}</p>
+      <h3>Centres</h3><p>${a.centres.map(([n]) => esc(n)).join(', ')}</p>
+      <h3>Works</h3><ul class="works">${a.works.map(work).join('')}</ul>
+      ${(a.dynasties || []).length ? `<h3>Patrons</h3><p>${a.dynasties.map((id) => `<a href="#dynasty/${id}">${esc(dynastyById.get(id).name)}</a>`).join(', ')}</p>` : ''}
+      ${(a.styles || []).length ? `<h3>Architecture of the same world</h3><p>${a.styles.map((id) => `<a href="#style/${id}">${esc(styleById.get(id).name)}</a>`).join(', ')}</p>` : ''}
+      ${(a.monuments || []).length ? `<h3>Monuments</h3>${builtList(a.monuments)}` : ''}
+      ${kin.length ? `<h3>At work at the same time</h3>${artList(kin)}` : ''}`;
   },
 };
 CARDS.monument = (m) => {
@@ -423,6 +470,9 @@ const PAGES = {
   styles: () => `${back()}<p class="eyebrow">Architecture</p><h2>Styles</h2>
     <p>Every monument on the map belongs to one style. A style opens with what to look for and its monuments, and the map then shows only those. See also the <a href="#glossary">glossary</a> of building parts.</p>
     ${FAMILIES.map((f) => `<h3>${esc(f.name)}</h3><ul class="built">${STYLES.filter((s) => s.family === f.id).map((s) => `<li><a href="#style/${s.id}">${esc(s.name)}</a> <span>${esc(spanText(s.start, s.end))} · ${s.monuments.length}</span></li>`).join('')}</ul>`).join('')}`,
+  art: () => `${back()}<p class="eyebrow">Art</p><h2>Sculpture and painting</h2>
+    <p>${ART.length} schools of Indian art, from the Indus seals to the Progressive Artists of 1947. Each opens with what to look for, its centres and some of its best-known works and where to see them. Switch on the <strong>Art</strong> layer to see the centres at work in the chosen year.</p>
+    ${ART_KINDS.map((k) => `<h3>${esc(k.name)}</h3>${artList(ART.filter((a) => a.kind === k.id).sort((p, q) => p.start - q.start), false)}`).join('')}`,
   sources: () => `${back()}<p class="eyebrow">About the atlas</p><h2>Sources</h2>
     <p>Every border on the atlas is approximate, and each map’s note says how it was drawn and how sure it is. These are the works it rests on.</p>
     ${SOURCES.map((g) => `<h3>${esc(g.group)}</h3>${g.note ? `<p class="muted">${esc(g.note)}</p>` : ''}<ul class="sources">${g.items.map(srcItem).join('')}</ul>`).join('')}
@@ -475,6 +525,7 @@ function render() {
   const standing = drawPins(year, era);
   drawCapitals(year);
   drawBattles(year, era, current.focus);
+  drawArt(year, current.focus);
   $('tl-standing').textContent = `${standing === 1 ? '1 monument' : `${standing} monuments`} standing${styleFilter ? `, ${styleById.get(styleFilter).name}` : ''}`;
   drawChart(era, year);
 }
@@ -609,9 +660,9 @@ addEventListener('keydown', (ev) => {
 });
 
 /* ---------- addresses ---------- */
-// #1605 opens that year; #ruler/akbar, #dynasty/chola and #battle/plassey open the item at its year;
+// #1605 opens that year; #ruler/akbar, #dynasty/chola, #battle/plassey and #art/pahari open the item at its year;
 // #style/mughal filters the map to the style; #monument/taj-mahal opens a monument at its year;
-// #term/jali opens the glossary at a term; #styles, #glossary, #sources and #dynasties open those views.
+// #term/jali opens the glossary at a term; #styles, #glossary, #art, #sources and #dynasties open those views.
 // With no address the page opens on the Mauryas.
 const at = (year, opts) => show(posOf(clampYear(year)), { url: false, exact: clampYear(year), keep: true, ...opts });
 const dynastyYear = (d) => (current.year >= d.start && current.year <= d.end ? current.year : Math.round(d.start + Math.min(60, (d.end - d.start) / 2)));
@@ -621,6 +672,13 @@ function fromHash() {
   if (kind === 'ruler' && rulerById.has(id)) { const r = rulerById.get(id); at(r.start); return openDetail(CARDS.ruler(r)); }
   if (kind === 'dynasty' && dynastyById.has(id)) { const d = dynastyById.get(id); at(dynastyYear(d)); return openDetail(CARDS.dynasty(d)); }
   if (kind === 'battle' && battleById.has(id)) { const b = battleById.get(id); at(b.year, { focus: b.id }); return openDetail(CARDS.battle(b)); }
+  if (kind === 'art' && artById.has(id)) {
+    const a = artById.get(id);
+    // Opening a school switches the art layer on, so its centres show.
+    if (!layers.art) { layers.art = true; const box = document.querySelector('[data-layer="art"]'); if (box) box.checked = true; }
+    at(current.year >= a.start && current.year <= a.end ? current.year : Math.round((a.start + a.end) / 2), { focus: a.id });
+    return openDetail(CARDS.art(a));
+  }
   if (kind === 'style' && styleById.has(id)) {
     const s = styleById.get(id);
     styleFilter = s.id;

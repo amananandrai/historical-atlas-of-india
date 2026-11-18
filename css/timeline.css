@@ -173,6 +173,8 @@
 .sym-capital { width: 10px; height: 10px; background: var(--fg); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); flex: none; }
 .sym-battle { width: 11px; height: 11px; border-radius: 50%; background: var(--fg); flex: none; position: relative; }
 .sym-battle::after { content: "×"; position: absolute; inset: 0; color: var(--bg); font: 700 10px/11px var(--font-body); text-align: center; }
+.sym-art { width: 9px; height: 9px; margin: 0 1px; background: var(--fg); transform: rotate(45deg); flex: none; display: inline-block; }
+.sym-art.open { background: var(--bg); box-shadow: inset 0 0 0 1.6px var(--fg); }
 .linkish { border: 0; padding: 0 2px; background: none; color: var(--accent); font: inherit; cursor: pointer; }
 .linkish:hover { text-decoration: underline; }
 
@@ -184,7 +186,17 @@
 .tl-map .battle path { stroke: var(--bg); stroke-width: 1.6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .tl-map .battle:hover circle, .tl-map .battle:focus-visible circle, .tl-map .battle.focus circle { stroke: var(--accent); stroke-width: 3; }
 .tl-map .battle.focus circle { r: 8.5; }
-.tl-map .capital, .tl-map .battle { cursor: pointer; outline: none; }
+.tl-map .capital, .tl-map .battle, .tl-map .art { cursor: pointer; outline: none; }
+.tl-map .art path { fill: var(--fg); stroke: var(--pin-ring); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.tl-map .art.k-painting path { fill: var(--bg); stroke: var(--fg); stroke-width: 1.8; }
+.tl-map .art:hover path, .tl-map .art:focus-visible path, .tl-map .art.focus path { stroke: var(--accent); stroke-width: 3; }
+
+/* works of a school of art */
+.works { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 8px; }
+.works .work p { margin: 0; font-size: 13px; line-height: 1.4; }
+.works figure { margin: 0 0 4px; }
+.works img { display: block; width: 100%; height: auto; border-radius: 6px; border: 1px solid var(--line); }
+.works figcaption { font-size: 11px; color: var(--muted); }
 
 /* the dynasty chart */
 .tl-chart { grid-area: chart; border-top: 1px solid var(--line); background: var(--bg); padding: 6px 12px 4px; }

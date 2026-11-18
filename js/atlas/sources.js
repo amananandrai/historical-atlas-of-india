@@ -58,6 +58,15 @@ export const SOURCES = [
     ],
   },
   {
+    group: 'Art',
+    note: 'The schools of sculpture and painting, their dates, centres and works are summaries of these surveys; where each work is now is from the holding museum’s own record. No pictures of works are shown yet: each will be taken only from a museum’s CC0 or public-domain open-access record.',
+    items: [
+      { id: 'harle', cite: 'J. C. Harle, The Art and Architecture of the Indian Subcontinent. 2nd ed. Yale University Press (Pelican History of Art), 1994.', use: 'The schools of sculpture, from the Indus to the Hoysalas, and the early painting.', at: [['art/gandhara', 'Gandhara'], ['art/chola-bronze', 'Chola bronzes']] },
+      { id: 'dehejia', cite: 'Vidya Dehejia, Indian Art. Phaidon (Art & Ideas), 1997.', use: 'The outline of the schools and their dates.', at: [['art', 'Sculpture and painting']] },
+      { id: 'goswamy', cite: 'B. N. Goswamy, The Spirit of Indian Painting: Close Encounters with 101 Great Works, 1100–1900. Penguin, 2014.', use: 'The schools of painting, from the Jain manuscripts to Company painting, and their painters.', at: [['art/pahari', 'Pahari'], ['art/mughal-painting', 'Mughal']] },
+    ],
+  },
+  {
     group: 'Monuments',
     items: [
       {
