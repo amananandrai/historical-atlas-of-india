@@ -1,9 +1,10 @@
 // The atlas page (index.html): a map of the subcontinent that changes with a year slider.
 // Each era shows its borders, a short history, the dynasties ruling in the chosen year, its battles,
-// its schools of art, and a pin for every monument standing by that year (a pin opens the monument's
-// 3D model on the monuments site). Rulers, dynasties, styles, battles and schools of art open in the
-// side card, each at its own address: #ruler/akbar, #dynasty/chola, #style/mughal, #battle/plassey,
-// #art/pahari, #styles, #glossary, #art.
+// its schools of art, travellers and trade routes, and a pin for every monument standing by that year
+// (a pin opens the monument's 3D model on the monuments site). Rulers, dynasties, styles, battles,
+// schools of art, travellers and routes open in the side card, each at its own address: #ruler/akbar,
+// #dynasty/chola, #style/mughal, #battle/plassey, #art/pahari, #traveller/xuanzang, #route/silk-road,
+// #styles, #glossary, #art, #tours. Guided tours step through the map at #tour/<id>/<step>.
 import { MONUMENTS, MONUMENTS_SITE } from './monuments.js';
 import { ERAS, formatYear } from './timeline-data.js';
 import { TMAP, project } from './timeline-map.js';
@@ -11,6 +12,8 @@ import { DYNASTIES, LANES, RULERS, reigningAt, capitalsAt } from './atlas/dynast
 import { FAMILIES, STYLES, TERMS, styleOf } from './atlas/styles.js';
 import { BATTLES } from './atlas/battles.js';
 import { ART, ART_KINDS, artOf, artAt } from './atlas/art.js';
+import { TRAVELLERS, ROUTES, routesOf } from './atlas/routes.js';
+import { TOURS } from './atlas/tours.js';
 import { SOURCES, NOT_YET, ISSUES } from './atlas/sources.js';
 import { buildIndex, search, parseYear } from './atlas/search.js';
 
@@ -45,6 +48,9 @@ const styleById = new Map(STYLES.map((s) => [s.id, s]));
 const termById = new Map(TERMS.map((t) => [t.id, t]));
 const battleById = new Map(BATTLES.map((b) => [b.id, b]));
 const artById = new Map(ART.map((a) => [a.id, a]));
+const travellerById = new Map(TRAVELLERS.map((t) => [t.id, t]));
+const routeById = new Map(ROUTES.map((r) => [r.id, r]));
+const tourById = new Map(TOURS.map((t) => [t.id, t]));
 // Who built each monument: the ruler in whose reign it rose, or else the dynasty.
 const builder = new Map();
 for (const d of DYNASTIES) {
@@ -72,7 +78,7 @@ const posOf = (year) => {
 };
 
 /* ---------- layers ---------- */
-const layers = { borders: true, monuments: true, capitals: false, battles: true, art: false };
+const layers = { borders: true, monuments: true, capitals: false, battles: true, art: false, travellers: false, trade: false };
 try { Object.assign(layers, JSON.parse(localStorage.getItem('atlas-layers') || '{}')); } catch (e) { /* private window */ }
 let styleFilter = null;          // a style id: only its monuments are pinned
 
@@ -91,11 +97,13 @@ svg.innerHTML = `
   <path class="rivers" d="${TMAP.rivers}"/>
   <path class="today" d="${TMAP.indiaToday}"><title>India’s boundary today</title></path>
   <g id="tl-labels"></g>
+  <g id="tl-routes"></g>
+  <g id="tl-journeys"></g>
   <g id="tl-capitals"></g>
   <g id="tl-art"></g>
   <g id="tl-battles"></g>
   <g id="tl-pins"></g>`;
-const fillsG = $('tl-fills'), labelsG = $('tl-labels'), pinsG = $('tl-pins'), capitalsG = $('tl-capitals'), battlesG = $('tl-battles'), artG = $('tl-art');
+const fillsG = $('tl-fills'), labelsG = $('tl-labels'), pinsG = $('tl-pins'), capitalsG = $('tl-capitals'), battlesG = $('tl-battles'), artG = $('tl-art'), routesG = $('tl-routes'), journeysG = $('tl-journeys');
 const todayPath = svg.querySelector('.today');
 const tip = $('tl-tip');
 
@@ -265,6 +273,52 @@ function drawArt(year, focus) {
   }
 }
 
+// Trade routes in use in the chosen year, as lines: solid for roads, dashed for sea lanes.
+const linePath = (pts) => pts.map(([, lat, lng], i) => { const [x, y] = project(lat, lng); return `${i ? 'L' : 'M'}${x.toFixed(1)} ${y.toFixed(1)}`; }).join('');
+const isSea = (name) => name.startsWith('to ') || /^(off |Bay of|Gulf of)/.test(name);
+function drawRoutes(year, focus) {
+  routesG.replaceChildren();
+  if (!layers.trade) return;
+  for (const r of ROUTES) {
+    if (year < r.start || year > r.end) continue;
+    const a = el('a', { href: `#route/${r.id}`, class: `route k-${r.kind}${r.id === focus ? ' focus' : ''}`, 'aria-label': `${r.name}, trade route` });
+    for (const pts of r.paths) {
+      const d = linePath(pts);
+      a.appendChild(el('path', { class: 'hit', d }));
+      a.appendChild(el('path', { class: 'line', d }));
+    }
+    withTip(a, () => `<strong>${esc(r.name)}</strong><span>${r.kind === 'sea' ? 'Sea route' : 'Road'} · ${esc(spanText(r.start, r.end, r.c))}</span><span>${esc(r.goods)}</span><span>Open the route</span>`);
+    routesG.appendChild(a);
+  }
+}
+
+// Travellers in India in the chosen year, each a dotted line through the places they wrote about; a
+// journey stays on the map, fainter, for 25 years after it ended.
+const LINGER = 25;
+function drawJourneys(year, focus) {
+  journeysG.replaceChildren();
+  if (!layers.travellers) return;
+  for (const t of TRAVELLERS) {
+    if (year < t.start || year > t.end + LINGER) continue;
+    const past = year > t.end && t.id !== focus;
+    const a = el('a', { href: `#traveller/${t.id}`, class: `journey${past ? ' past' : ''}${t.id === focus ? ' focus' : ''}`, 'aria-label': `${t.name}, ${t.from}, in India ${spanText(t.start, t.end, t.c)}` });
+    const d = linePath(t.stops);
+    a.appendChild(el('path', { class: 'hit', d }));
+    a.appendChild(el('path', { class: 'line', d }));
+    const seen = new Set();
+    for (const [name, lat, lng] of t.stops) {
+      if (isSea(name) || seen.has(name)) continue;
+      seen.add(name);
+      const [x, y] = project(lat, lng);
+      a.appendChild(el('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: 2.6 }));
+    }
+    const [lx, ly] = project(t.stops[0][1], t.stops[0][2]);
+    a.appendChild(el('text', { class: 'lab journey-name', x: lx + 5, y: ly - 5 }, t.name));
+    withTip(a, () => `<strong>${esc(t.name)}</strong><span>${esc(t.from)} · in India ${esc(spanText(t.start, t.end, t.c))}</span><span>${esc(t.stops.filter(([n]) => !isSea(n)).map(([n]) => n).join(' → '))}</span><span>Open the journey</span>`);
+    journeysG.appendChild(a);
+  }
+}
+
 /* ---------- the dynasty chart ---------- */
 // Lanes by region across the era's span (at least 150 years), each dynasty a bar; the line is the year.
 const chart = $('tl-chart'), chartSvg = $('chart-svg'), navChart = $('nav-chart');
@@ -325,6 +379,9 @@ navChart.addEventListener('click', () => setChart(!chartOpen));
 /* ---------- the era card ---------- */
 const kindName = (k) => (k === 'sculpture' ? 'Sculpture' : 'Painting');
 const artItem = (a, kind = true) => `<li><a href="#art/${a.id}">${esc(a.name)}</a> <span>${kind ? `${kindName(a.kind)} · ` : ''}${esc(spanText(a.start, a.end, a.c))}</span></li>`;
+const journeyList = ({ travellers, routes }, title) => (travellers.length || routes.length ? `<h3>${title}</h3><ul class="built">${[
+  ...travellers.map((t) => `<li><a href="#traveller/${t.id}">${esc(t.name)}</a> <span>${esc(t.from)} · ${esc(spanText(t.start, t.end, t.c))}</span></li>`),
+  ...routes.map((r) => `<li><a href="#route/${r.id}">${esc(r.name)}</a> <span>${r.kind === 'sea' ? 'Sea route' : 'Road'} · ${esc(spanText(r.start, r.end, r.c))}</span></li>`)].join('')}</ul>` : '');
 const artList = (as, kind = true) => `<ul class="built">${as.map((a) => artItem(a, kind)).join('')}</ul>`;
 const thumb = (m) => `<a class="thumb" href="${MONUMENTS_SITE}/#${m.id}"><img src="${MONUMENTS_SITE}/assets/views/${m.id}.png" alt="" width="800" height="450" loading="lazy"><span><strong>${esc(m.name)}</strong> ${esc(m.built)}</span></a>`;
 let cardEra = -1;
@@ -357,6 +414,12 @@ function drawCard(i) {
   const art = ART.filter((a) => a.start < e.end && a.end >= e.start).sort((a, b) => a.start - b.start);
   $('c-art-wrap').hidden = !art.length;
   $('c-art').innerHTML = art.map((a) => artItem(a)).join('');
+  const journeys = [
+    ...TRAVELLERS.filter((t) => t.start <= e.end && t.end >= e.start).map((t) => `<li><a href="#traveller/${t.id}">${esc(t.name)}</a> <span>${esc(t.from)} · ${esc(spanText(t.start, t.end, t.c))}</span></li>`),
+    ...ROUTES.filter((r) => r.start < e.end && r.end >= e.start).map((r) => `<li><a href="#route/${r.id}">${esc(r.name)}</a> <span>${r.kind === 'sea' ? 'Sea route' : 'Road'} · ${esc(spanText(r.start, r.end, r.c))}</span></li>`),
+  ];
+  $('c-journeys-wrap').hidden = !journeys.length;
+  $('c-journeys').innerHTML = journeys.join('');
   $('tl-card').scrollTop = 0;
 }
 
@@ -417,7 +480,8 @@ const CARDS = {
       <h3>Rulers</h3><ul class="built">${d.rulers.map((r) => `<li><a href="#ruler/${r.id}">${esc(r.name)}</a> <span>${esc(spanText(r.start, r.end, r.c))}</span></li>`).join('')}</ul>
       ${built.length ? `<h3>Monuments of the dynasty</h3>${builtList(built)}` : ''}
       ${battles.length ? `<h3>Battles</h3><ul class="built">${battles.map((b) => `<li><a href="#battle/${b.id}">${esc(b.name)}</a> <span>${esc(formatYear(b.year))}</span></li>`).join('')}</ul>` : ''}
-      ${artOf('dynasties', d.id).length ? `<h3>Art under the ${esc(d.name)}</h3>${artList(artOf('dynasties', d.id))}` : ''}`;
+      ${artOf('dynasties', d.id).length ? `<h3>Art under the ${esc(d.name)}</h3>${artList(artOf('dynasties', d.id))}` : ''}
+      ${journeyList(routesOf(d.id), `Travellers and trade under the ${esc(d.name)}`)}`;
   },
   battle(b) {
     return `${back()}<p class="eyebrow">Battle</p>
@@ -437,6 +501,43 @@ const CARDS = {
       <h3>Monuments (${s.monuments.length})</h3>${builtList(s.monuments)}
       ${artOf('styles', s.id).length ? `<h3>Sculpture and painting of the same world</h3>${artList(artOf('styles', s.id))}` : ''}
       ${kin.length ? `<h3>Related styles</h3><p>${kin.map((o) => `<a href="#style/${o.id}">${esc(o.name)}</a>`).join(', ')}</p>` : ''}`;
+  },
+  traveller(t) {
+    const places = [...new Set(t.stops.filter(([n]) => !isSea(n)).map(([n]) => n))];
+    const others = TRAVELLERS.filter((o) => o !== t).sort((p, q) => p.start - q.start);
+    return `${back()}<p class="eyebrow">Traveller · ${esc(t.from)}</p>
+      <h2>${esc(t.name)}</h2><p class="span">In India ${esc(spanText(t.start, t.end, t.c))}</p>
+      <p>${esc(t.summary)}</p>
+      <h3>Account</h3><p>${esc(t.account)}</p>
+      <h3>The journey</h3><p>${places.map(esc).join(' → ')}</p>
+      ${(t.dynasties || []).length ? `<h3>Courts and kingdoms</h3><p>${t.dynasties.map((id) => `<a href="#dynasty/${id}">${esc(dynastyById.get(id).name)}</a>`).join(', ')}</p>` : ''}
+      <h3>Other travellers</h3><ul class="built">${others.map((o) => `<li><a href="#traveller/${o.id}">${esc(o.name)}</a> <span>${esc(spanText(o.start, o.end, o.c))}</span></li>`).join('')}</ul>`;
+  },
+  route(r) {
+    const places = r.paths.map((p) => p.filter(([n]) => !isSea(n) || n.startsWith('to ')).map(([n]) => esc(n)).join(' → '));
+    const kin = ROUTES.filter((o) => o !== r && o.start < r.end && o.end > r.start);
+    return `${back()}<p class="eyebrow">Trade route · ${r.kind === 'sea' ? 'By sea' : 'By land'}</p>
+      <h2>${esc(r.name)}</h2><p class="span">In use ${esc(spanText(r.start, r.end, r.c))}</p>
+      <p>${esc(r.summary)}</p>
+      <h3>Goods</h3><p>${esc(r.goods)}</p>
+      <h3>The way</h3>${places.map((p) => `<p>${p}</p>`).join('')}
+      ${(r.dynasties || []).length ? `<h3>Kingdoms on the route</h3><p>${r.dynasties.map((id) => `<a href="#dynasty/${id}">${esc(dynastyById.get(id).name)}</a>`).join(', ')}</p>` : ''}
+      ${kin.length ? `<h3>Routes of the same time</h3><p>${kin.map((o) => `<a href="#route/${o.id}">${esc(o.name)}</a>`).join(', ')}</p>` : ''}`;
+  },
+  tour(t, n) {
+    const st = t.steps[n], last = n === t.steps.length - 1;
+    const [k, id] = (st.open || '').split('/');
+    const target = st.open && ({ ruler: rulerById, dynasty: dynastyById, battle: battleById, style: styleById, art: artById, traveller: travellerById, route: routeById }[k] || new Map()).get(id);
+    return `<p class="eyebrow">Tour · ${esc(t.name)} · ${n + 1} of ${t.steps.length}</p>
+      <h2>${esc(st.title)}</h2><p class="span">${esc(formatYear(st.year))}</p>
+      <p>${esc(st.text)}</p>
+      ${target ? `<p><a href="#${st.open}">More on ${esc(target.name)} →</a></p>` : ''}
+      <nav class="tour-nav" aria-label="Tour steps">
+        ${n ? `<a class="btn" href="#tour/${t.id}/${n}">← Back</a>` : '<span></span>'}
+        ${last ? `<a class="btn btn-go" href="#tours">End of the tour</a>` : `<a class="btn btn-go" href="#tour/${t.id}/${n + 2}">Next →</a>`}
+      </nav>
+      <ol class="tour-steps">${t.steps.map((s, i) => `<li${i === n ? ' aria-current="step"' : ''}><a href="#tour/${t.id}/${i + 1}">${esc(s.title)}</a> <span>${esc(formatYear(s.year))}</span></li>`).join('')}</ol>
+      <p class="muted"><a href="#tours">All tours</a></p>`;
   },
   art(a) {
     const kind = ART_KINDS.find((k) => k.id === a.kind);
@@ -473,6 +574,12 @@ const PAGES = {
   art: () => `${back()}<p class="eyebrow">Art</p><h2>Sculpture and painting</h2>
     <p>${ART.length} schools of Indian art, from the Indus seals to the Progressive Artists of 1947. Each opens with what to look for, its centres and some of its best-known works and where to see them. Switch on the <strong>Art</strong> layer to see the centres at work in the chosen year.</p>
     ${ART_KINDS.map((k) => `<h3>${esc(k.name)}</h3>${artList(ART.filter((a) => a.kind === k.id).sort((p, q) => p.start - q.start), false)}`).join('')}`,
+  tours: () => `${back()}<p class="eyebrow">Stories</p><h2>Tours and journeys</h2>
+    <h3>Guided tours</h3><ul class="tours">${TOURS.map((t) => `<li><a href="#tour/${t.id}/1"><strong>${esc(t.name)}</strong></a> <span class="muted">${t.steps.length} steps · ${esc(formatYear(t.steps[0].year))} to ${esc(formatYear(t.steps.at(-1).year))}</span><p>${esc(t.summary)}</p></li>`).join('')}</ul>
+    <h3>Travellers</h3><p class="muted">Switch on the <strong>Travellers</strong> layer to see who was on the road in the chosen year.</p>
+    <ul class="built">${[...TRAVELLERS].sort((p, q) => p.start - q.start).map((t) => `<li><a href="#traveller/${t.id}">${esc(t.name)}</a> <span>${esc(t.from)} · ${esc(spanText(t.start, t.end, t.c))}</span></li>`).join('')}</ul>
+    <h3>Trade routes</h3><p class="muted">Switch on the <strong>Trade routes</strong> layer to see the roads and sea lanes in use.</p>
+    <ul class="built">${[...ROUTES].sort((p, q) => p.start - q.start).map((r) => `<li><a href="#route/${r.id}">${esc(r.name)}</a> <span>${r.kind === 'sea' ? 'Sea' : 'Land'} · ${esc(spanText(r.start, r.end, r.c))}</span></li>`).join('')}</ul>`,
   sources: () => `${back()}<p class="eyebrow">About the atlas</p><h2>Sources</h2>
     <p>Every border on the atlas is approximate, and each map’s note says how it was drawn and how sure it is. These are the works it rests on.</p>
     ${SOURCES.map((g) => `<h3>${esc(g.group)}</h3>${g.note ? `<p class="muted">${esc(g.note)}</p>` : ''}<ul class="sources">${g.items.map(srcItem).join('')}</ul>`).join('')}
@@ -526,6 +633,8 @@ function render() {
   drawCapitals(year);
   drawBattles(year, era, current.focus);
   drawArt(year, current.focus);
+  drawRoutes(year, current.focus);
+  drawJourneys(year, current.focus);
   $('tl-standing').textContent = `${standing === 1 ? '1 monument' : `${standing} monuments`} standing${styleFilter ? `, ${styleById.get(styleFilter).name}` : ''}`;
   drawChart(era, year);
 }
@@ -571,6 +680,13 @@ for (const box of document.querySelectorAll('[data-layer]')) {
     shownMap = undefined;
     render();
   });
+}
+// Opening a traveller, a route, a school of art or a tour step switches its layer on.
+function setLayer(name, on) {
+  if (layers[name] === on) return;
+  layers[name] = on;
+  const box = document.querySelector(`[data-layer="${name}"]`);
+  if (box) box.checked = on;
 }
 // On a phone the layers start folded away.
 if (narrow.matches) $('tl-layers').open = false;
@@ -660,22 +776,41 @@ addEventListener('keydown', (ev) => {
 });
 
 /* ---------- addresses ---------- */
-// #1605 opens that year; #ruler/akbar, #dynasty/chola, #battle/plassey and #art/pahari open the item at its year;
+// #1605 opens that year; #ruler/akbar, #dynasty/chola, #battle/plassey, #art/pahari, #traveller/xuanzang and
+// #route/silk-road open the item at its year; #tour/first-empire/2 opens a step of a tour;
 // #style/mughal filters the map to the style; #monument/taj-mahal opens a monument at its year;
-// #term/jali opens the glossary at a term; #styles, #glossary, #art, #sources and #dynasties open those views.
+// #term/jali opens the glossary at a term; #styles, #glossary, #art, #tours, #sources and #dynasties open those views.
 // With no address the page opens on the Mauryas.
 const at = (year, opts) => show(posOf(clampYear(year)), { url: false, exact: clampYear(year), keep: true, ...opts });
 const dynastyYear = (d) => (current.year >= d.start && current.year <= d.end ? current.year : Math.round(d.start + Math.min(60, (d.end - d.start) / 2)));
 function fromHash() {
   const h = decodeURIComponent(location.hash.slice(1));
-  const [kind, id] = h.split('/');
+  const [kind, id, step] = h.split('/');
   if (kind === 'ruler' && rulerById.has(id)) { const r = rulerById.get(id); at(r.start); return openDetail(CARDS.ruler(r)); }
   if (kind === 'dynasty' && dynastyById.has(id)) { const d = dynastyById.get(id); at(dynastyYear(d)); return openDetail(CARDS.dynasty(d)); }
   if (kind === 'battle' && battleById.has(id)) { const b = battleById.get(id); at(b.year, { focus: b.id }); return openDetail(CARDS.battle(b)); }
+  if (kind === 'traveller' && travellerById.has(id)) {
+    const t = travellerById.get(id);
+    setLayer('travellers', true);
+    at(current.year >= t.start && current.year <= t.end ? current.year : Math.round((t.start + t.end) / 2), { focus: t.id });
+    return openDetail(CARDS.traveller(t));
+  }
+  if (kind === 'route' && routeById.has(id)) {
+    const r = routeById.get(id);
+    setLayer('trade', true);
+    at(current.year >= r.start && current.year <= r.end ? current.year : Math.round(r.start + Math.min(100, (r.end - r.start) / 2)), { focus: r.id });
+    return openDetail(CARDS.route(r));
+  }
+  if (kind === 'tour' && tourById.has(id)) {
+    const t = tourById.get(id), n = Math.max(0, Math.min(t.steps.length - 1, (parseInt(step, 10) || 1) - 1)), st = t.steps[n];
+    for (const l of st.layers || []) setLayer(l, true);
+    at(st.year, { focus: st.open ? st.open.split('/')[1] : null });
+    return openDetail(CARDS.tour(t, n));
+  }
   if (kind === 'art' && artById.has(id)) {
     const a = artById.get(id);
     // Opening a school switches the art layer on, so its centres show.
-    if (!layers.art) { layers.art = true; const box = document.querySelector('[data-layer="art"]'); if (box) box.checked = true; }
+    setLayer('art', true);
     at(current.year >= a.start && current.year <= a.end ? current.year : Math.round((a.start + a.end) / 2), { focus: a.id });
     return openDetail(CARDS.art(a));
   }

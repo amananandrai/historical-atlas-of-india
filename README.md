@@ -46,16 +46,23 @@ Every monument pin opens that monument's 3D model on the
   of 1947. Each has its centres, what to look for, some of its best-known works and where they are
   now, and links to its patrons, the architecture of the same world and its monuments. The **art
   layer** marks the centres at work in the chosen year.
-- **Map layers** to switch on and off: borders, monuments, capitals, 24 battles and the schools of art.
+- **Travellers and trade:** 11 travellers' journeys, from Megasthenes, Faxian and Xuanzang to Ibn
+  Battuta, Roe and Bernier, each through the places they wrote about; and 8 trade routes by land and
+  sea, from the Uttarapatha and the monsoon route to Rome to the Grand Trunk Road.
+- **Guided tours** (`#tours`): four stories told a step at a time, moving the map as they go: the
+  first empire, pilgrims' India, the temple builders of the south, and the Mughals to the Company.
+- **Map layers** to switch on and off: borders, monuments, capitals, 24 battles, the schools of art,
+  travellers and trade routes.
 - **Search** across rulers, dynasties, capitals, styles, glossary terms, battles, schools of art and
-  their works, monuments, eras and
+  their works, travellers, trade routes, tours, monuments, eras and
   years (`1605`, `250 BCE`); press `/` to start typing.
 - **A sources page** (`#sources`) listing every map, inscription and history the atlas rests on, what
   each is used for and under what terms, with links to where it shows; each map's note links to it.
 - **Direct links** to everything: a year (`#1605`), a ruler (`#ruler/akbar`), a dynasty
   (`#dynasty/chola`), a style (`#style/mughal`), a battle (`#battle/plassey`), a school of art
-  (`#art/pahari`), a monument (`#monument/taj-mahal`), a glossary term (`#term/jali`), and the
-  `#styles`, `#glossary`, `#art`, `#sources` and `#dynasties` views.
+  (`#art/pahari`), a traveller (`#traveller/xuanzang`), a trade route (`#route/silk-road`), a tour
+  step (`#tour/first-empire/3`), a monument (`#monument/taj-mahal`), a glossary term (`#term/jali`),
+  and the `#styles`, `#glossary`, `#art`, `#tours`, `#sources` and `#dynasties` views.
 
 ## How it is built
 
@@ -66,6 +73,7 @@ A static site with no build step: `index.html`, `css/` and ES modules in `js/`.
 | `js/timeline-data.js` | The eras: their text, dates and what each map draws |
 | `js/timeline.js` | The page: map, slider, era card, pins |
 | `js/atlas/dynasties.js`, `styles.js`, `battles.js`, `art.js` | Rulers and dynasties, architecture styles and the glossary, battles, schools of sculpture and painting |
+| `js/atlas/routes.js`, `tours.js` | Travellers and trade routes; the guided tours |
 | `js/atlas/sources.js`, `search.js` | The sources page, and the search index |
 | `js/timeline-map.js` | Generated: land, rivers, every era's borders |
 | `data/units/*.json` | Generated: the provinces and states of 1939, 1947 and every date of the Republic, fetched when needed |
@@ -75,7 +83,7 @@ A static site with no build step: `index.html`, `css/` and ES modules in `js/`.
 | `css/base.css`, `css/timeline.css` | The shared look (matching the monuments site) and the page layout |
 
 The generated files are made by the scripts in [`tools/`](tools/README.md); `node tools/check-atlas.mjs`
-checks the dynasties, styles, battles and schools of art (dates, places, links, and that any picture of a work is CC0 or public domain).
+checks the dynasties, styles, battles, schools of art, travellers, trade routes and tours (dates, places, links, and that any picture of a work is CC0 or public domain).
 
 ## Sources
 

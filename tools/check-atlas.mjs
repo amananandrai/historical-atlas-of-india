@@ -1,9 +1,11 @@
-// Checks the atlas's data: dynasties and rulers, styles and glossary, battles, schools of art. Exits 1 on a problem.
+// Checks the atlas's data: dynasties and rulers, styles and glossary, battles, schools of art, travellers, trade routes and tours. Exits 1 on a problem.
 //   node tools/check-atlas.mjs
 import { DYNASTIES, LANES } from '../js/atlas/dynasties.js';
 import { STYLES, FAMILIES, TERMS } from '../js/atlas/styles.js';
 import { BATTLES } from '../js/atlas/battles.js';
 import { ART, ART_KINDS } from '../js/atlas/art.js';
+import { TRAVELLERS, ROUTES } from '../js/atlas/routes.js';
+import { TOURS } from '../js/atlas/tours.js';
 import { SOURCES } from '../js/atlas/sources.js';
 import { MONUMENTS } from '../js/monuments.js';
 
@@ -76,19 +78,52 @@ for (const a of ART) {
   for (const m of a.monuments || []) if (!monuments.has(m)) bad(`art ${a.id}: no monument ${m}`);
 }
 
+// Travellers and trade routes: dates, places in the frame, links.
+const placesOk = (what, pts) => {
+  if (pts.length < 2) bad(`${what}: fewer than two places`);
+  for (const [name, lat, lng] of pts) if (!inFrame(lat, lng)) bad(`${what}: ${name} out of the map`);
+};
+for (const t of TRAVELLERS) {
+  unique('traveller', t.id);
+  if (!(t.start <= t.end) || t.end > year) bad(`traveller ${t.id}: span ${t.start}–${t.end}`);
+  if (!t.account || !t.summary || !t.from) bad(`traveller ${t.id}: lacks its account, summary or origin`);
+  placesOk(`traveller ${t.id}`, t.stops);
+  for (const d of t.dynasties || []) if (!dynasties.has(d)) bad(`traveller ${t.id}: unknown dynasty ${d}`);
+}
+for (const r of ROUTES) {
+  unique('route', r.id);
+  if (!['land', 'sea'].includes(r.kind)) bad(`route ${r.id}: kind ${r.kind}`);
+  if (!(r.start < r.end) || r.end > year) bad(`route ${r.id}: span ${r.start}–${r.end}`);
+  for (const p of r.paths) placesOk(`route ${r.id}`, p);
+  for (const d of r.dynasties || []) if (!dynasties.has(d)) bad(`route ${r.id}: unknown dynasty ${d}`);
+}
+
 // Every "seen at" link of the sources page goes somewhere real.
-const known = { ruler: new Set(DYNASTIES.flatMap((d) => d.rulers.map((r) => r.id))), dynasty: dynasties, style: new Set(STYLES.map((x) => x.id)), battle: new Set(BATTLES.map((x) => x.id)), art: new Set(ART.map((x) => x.id)) };
+const known = { ruler: new Set(DYNASTIES.flatMap((d) => d.rulers.map((r) => r.id))), dynasty: dynasties, style: new Set(STYLES.map((x) => x.id)), battle: new Set(BATTLES.map((x) => x.id)), art: new Set(ART.map((x) => x.id)), traveller: new Set(TRAVELLERS.map((x) => x.id)), route: new Set(ROUTES.map((x) => x.id)) };
 let sourceCount = 0;
 for (const g of SOURCES) for (const it of g.items) {
   sourceCount++;
   for (const [h] of it.at || []) {
     const [kind, id] = h.split('/');
-    if (id ? !(known[kind] && known[kind].has(id)) : !(/^-?\d+$/.test(kind) || ['glossary', 'styles', 'art', 'sources', 'dynasties'].includes(kind))) bad(`source ${it.id}: bad link #${h}`);
+    if (id ? !(known[kind] && known[kind].has(id)) : !(/^-?\d+$/.test(kind) || ['glossary', 'styles', 'art', 'tours', 'sources', 'dynasties'].includes(kind))) bad(`source ${it.id}: bad link #${h}`);
   }
 }
 
+// Tours: every step at a year on the slider, linked to something real, switching on real layers.
+const LAYERS = ['borders', 'monuments', 'capitals', 'battles', 'art', 'travellers', 'trade'];
+for (const t of TOURS) {
+  unique('tour', t.id);
+  if (t.steps.length < 3) bad(`tour ${t.id}: fewer than three steps`);
+  t.steps.forEach((s, i) => {
+    if (!(s.year >= -3300 && s.year <= year)) bad(`tour ${t.id} step ${i + 1}: year ${s.year}`);
+    if (i && s.year < t.steps[i - 1].year) bad(`tour ${t.id} step ${i + 1}: goes back in time`);
+    if (s.open) { const [k, id] = s.open.split('/'); if (!(known[k] && known[k].has(id))) bad(`tour ${t.id} step ${i + 1}: bad link #${s.open}`); }
+    for (const l of s.layers || []) if (!LAYERS.includes(l)) bad(`tour ${t.id} step ${i + 1}: unknown layer ${l}`);
+  });
+}
+
 const rulers = DYNASTIES.reduce((n, d) => n + d.rulers.length, 0);
-console.log(`${DYNASTIES.length} dynasties, ${rulers} rulers, ${STYLES.length} styles, ${TERMS.length} terms, ${BATTLES.length} battles, ${ART.length} schools of art, ${sourceCount} sources`);
+console.log(`${DYNASTIES.length} dynasties, ${rulers} rulers, ${STYLES.length} styles, ${TERMS.length} terms, ${BATTLES.length} battles, ${ART.length} schools of art, ${TRAVELLERS.length} travellers, ${ROUTES.length} trade routes, ${TOURS.length} tours, ${sourceCount} sources`);
 if (problems.length) {
   console.log(problems.map((p) => `  ${p}`).join('\n'));
   process.exit(1);
